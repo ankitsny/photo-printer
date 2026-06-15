@@ -3,164 +3,120 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PrintLayout Pro</title>
+<title>Photo Print Layout</title>
 <style>
-  :root, [data-theme="dark"] {
-    --bg: #131314;
-    --panel: #1e1e20;
-    --panel-line: #2e2f33;
-    --ink: #e3e2e6;
-    --muted: #909094;
-    --safelight: #ff5449;
-    --safelight-dim: #5c140f;
-    --paper: #ffffff;
-    --ruler: #c7c6ca;
-    --card-bg: #28292c;
-    --input-bg: #1e1e20;
-    --shadow: rgba(0, 0, 0, 0.5);
+  :root{
+    --bg: #18181a;
+    --panel: #212124;
+    --panel-line: #34343a;
+    --ink: #ece8e1;
+    --muted: #908c87;
+    --safelight: #e8483a;
+    --safelight-dim: #5a2620;
+    --paper: #fbfaf7;
+    --ruler: #c9c4ba;
   }
-
-  [data-theme="light"] {
-    --bg: #f0f0f4;
-    --panel: #ffffff;
-    --panel-line: #dee2e6;
-    --ink: #1b1b1f;
-    --muted: #75777c;
-    --safelight: #ba1a1a;
-    --safelight-dim: #ffdad6;
-    --paper: #ffffff;
-    --ruler: #75777c;
-    --card-bg: #f0f0f4;
-    --input-bg: #ffffff;
-    --shadow: rgba(0, 0, 0, 0.15);
-  }
-
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--ink);
     display: flex;
     min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
   }
 
   /* ---------- Sidebar ---------- */
-  #sidebar {
-    width: 350px;
+  #sidebar{
+    width: 340px;
     flex: none;
     background: var(--panel);
     border-right: 1px solid var(--panel-line);
-    padding: 24px 20px 40px;
+    padding: 24px 22px 90px;
     overflow-y: auto;
     height: 100vh;
     position: sticky;
     top: 0;
-    z-index: 10;
   }
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-  #sidebar h1 {
-    font-size: 18px;
+  #sidebar h1{
+    font-size: 17px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    margin: 0;
+    margin: 0 0 4px;
     font-weight: 700;
   }
-  #sidebar h1 span { color: var(--safelight); }
-  #sidebar .sub {
+  #sidebar h1 span{ color: var(--safelight); }
+  #sidebar .sub{
     color: var(--muted);
     font-size: 12px;
-    margin: 0 0 20px;
+    margin: 0 0 22px;
     line-height: 1.5;
   }
 
-  /* ---------- Theme Toggle ---------- */
-  .theme-toggle-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--panel-line);
-    color: var(--ink);
-    padding: 6px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .theme-toggle-btn:hover { border-color: var(--safelight); }
-
-  .field { margin-bottom: 16px; }
-  .field label {
-    display: block;
+  .field{ margin-bottom: 16px; }
+  .field label{
+    display:block;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--muted);
     margin-bottom: 6px;
-    font-weight: 600;
   }
-  .row2 { display: flex; gap: 10px; }
-  .row2 > div { flex: 1; }
+  .row2{ display:flex; gap: 8px; }
+  .row2 > div{ flex: 1; }
 
-  select, input[type="number"], input[type="text"] {
+  select, input[type="number"], input[type="text"]{
     width: 100%;
-    background: var(--input-bg);
+    background: #2b2b2f;
     border: 1px solid var(--panel-line);
     color: var(--ink);
     padding: 9px 10px;
     border-radius: 6px;
     font-size: 13px;
-    font-family: monospace;
+    font-family: "SF Mono", "Consolas", monospace;
   }
-  select:focus, input:focus {
+  select:focus, input:focus{
     outline: none;
     border-color: var(--safelight);
   }
 
   /* ---------- Photo items list ---------- */
-  #itemsList {
+  #itemsList{
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
   }
-  .item-card {
+  .item-card{
     display: flex;
-    gap: 12px;
-    background: var(--card-bg);
+    gap: 10px;
+    background: #2b2b2f;
     border: 1px solid var(--panel-line);
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px;
   }
-  .item-thumb {
-    width: 64px;
-    height: 64px;
+  .item-thumb{
+    width: 56px;
+    height: 56px;
     flex: none;
     border-radius: 6px;
     overflow: hidden;
-    background: #000;
-    border: 1px solid var(--panel-line);
+    background: #18181a;
   }
-  .item-thumb img {
+  .item-thumb img{
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .item-body {
+  .item-body{
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
-  .item-name {
+  .item-name{
     font-size: 11px;
     color: var(--muted);
     font-family: monospace;
@@ -168,16 +124,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .item-row {
+  .item-row{
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
   }
-  .item-row select, .item-row input {
+  .item-row select, .item-row input{
     font-size: 12px;
     padding: 6px 8px;
   }
-  .item-row label {
+  .item-row label{
     font-size: 10px;
     color: var(--muted);
     text-transform: uppercase;
@@ -185,84 +141,88 @@
     white-space: nowrap;
     flex: none;
   }
-  .item-custom { display: flex; gap: 6px; }
-  .item-custom input { font-size: 12px; padding: 6px 8px; }
-  
-  .item-actions { display: flex; gap: 6px; }
-  .item-actions button {
+  .item-custom{
+    display: flex;
+    gap: 6px;
+  }
+  .item-custom input{ font-size: 12px; padding: 6px 8px; }
+  .item-actions{
+    display: flex;
+    gap: 6px;
+  }
+  .item-actions button{
     flex: 1;
     font-size: 11px;
     padding: 6px;
     border-radius: 5px;
     border: 1px solid var(--panel-line);
-    background: var(--input-bg);
+    background: #18181a;
     color: var(--ink);
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .item-actions button:hover { border-color: var(--safelight); }
-  .item-actions button.remove:hover { border-color: #ff5a4a; color: #ff5a4a; }
+  .item-actions button:hover{ border-color: var(--safelight); }
+  .item-actions button.remove:hover{ border-color: #ff5a4a; color: #ff5a4a; }
 
-  #dropZone {
+  /* upload */
+  #dropZone{
     border: 1px dashed var(--panel-line);
     border-radius: 8px;
-    padding: 24px 12px;
+    padding: 18px 12px;
     text-align: center;
     cursor: pointer;
     transition: border-color .15s, background .15s;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--muted);
-    background: var(--card-bg);
   }
-  #dropZone:hover, #dropZone.drag {
+  #dropZone:hover, #dropZone.drag{
     border-color: var(--safelight);
     color: var(--ink);
     background: rgba(232,72,58,0.06);
   }
-  #dropZone strong { color: var(--ink); }
-  #fileInput { display: none; }
+  #dropZone strong{ color: var(--ink); }
+  #fileInput{ display:none; }
 
-  .checkbox-row {
-    display: flex;
-    align-items: center;
+  .checkbox-row{
+    display:flex;
+    align-items:center;
     gap: 8px;
     font-size: 13px;
     color: var(--ink);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     cursor: pointer;
-    user-select: none;
   }
-  .checkbox-row input { width: auto; accent-color: var(--safelight); }
+  .checkbox-row input{ width: auto; accent-color: var(--safelight); }
 
-  hr.div {
+  hr.div{
     border: none;
     border-top: 1px solid var(--panel-line);
     margin: 20px 0;
   }
 
-  /* ---------- Crop Modal ---------- */
-  .crop-overlay {
+  /* ---------- Crop modal ---------- */
+  .crop-overlay{
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(10,10,11,0.82);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
   }
-  .crop-modal {
+  .crop-modal{
     background: var(--panel);
     border: 1px solid var(--panel-line);
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     max-width: 90vw;
   }
-  .crop-modal h2 {
+  .crop-modal h2{
     margin: 0;
     font-size: 12px;
     text-transform: uppercase;
@@ -270,17 +230,16 @@
     color: var(--muted);
     align-self: flex-start;
   }
-  .crop-frame {
+  .crop-frame{
     position: relative;
     overflow: hidden;
     background: #000;
     border-radius: 4px;
     touch-action: none;
     cursor: grab;
-    border: 1px solid var(--panel-line);
   }
-  .crop-frame.dragging { cursor: grabbing; }
-  .crop-frame img {
+  .crop-frame.dragging{ cursor: grabbing; }
+  .crop-frame img{
     position: absolute;
     top: 0;
     left: 0;
@@ -291,49 +250,51 @@
     max-width: none;
     max-height: none;
   }
-  .crop-controls {
+  .crop-controls{
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
   }
-  .crop-controls span {
+  .crop-controls span{
     font-size: 11px;
     color: var(--muted);
     font-family: monospace;
+    letter-spacing: 0.05em;
   }
-  .crop-controls input[type="range"] {
+  .crop-controls input[type="range"]{
     flex: 1;
     accent-color: var(--safelight);
   }
-  .crop-buttons {
+  .crop-buttons{
     display: flex;
     gap: 10px;
     width: 100%;
   }
-  .crop-buttons button {
+  .crop-buttons button{
     flex: 1;
-    padding: 11px;
+    padding: 10px;
     border-radius: 6px;
     border: 1px solid var(--panel-line);
-    background: var(--card-bg);
+    background: #2b2b2f;
     color: var(--ink);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12.5px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  .crop-buttons button:hover { border-color: var(--safelight); }
-  .crop-buttons button.primary {
+  .crop-buttons button:hover{ border-color: var(--safelight); }
+  .crop-buttons button.primary{
     background: var(--safelight);
     border-color: var(--safelight);
     color: #fff;
     font-weight: 700;
   }
-  .crop-buttons button.primary:hover { background: #ff5a4a; }
+  .crop-buttons button.primary:hover{ background: #ff5a4a; }
 
-  #readout {
-    background: var(--card-bg);
+  /* result readout */
+  #readout{
+    background: #2b2b2f;
     border: 1px solid var(--panel-line);
     border-radius: 8px;
     padding: 12px 14px;
@@ -342,13 +303,13 @@
     line-height: 1.7;
     color: var(--ink);
   }
-  #readout .k { color: var(--muted); }
-  #readout .warn { color: var(--safelight); font-weight: bold; }
+  #readout .k{ color: var(--muted); }
+  #readout .warn{ color: var(--safelight); }
 
-  #printBtn {
+  #printBtn{
     width: 100%;
-    margin-top: 16px;
-    padding: 14px;
+    margin-top: 18px;
+    padding: 13px;
     background: var(--safelight);
     color: #fff;
     border: none;
@@ -358,94 +319,83 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
+    transition: background .15s;
   }
-  #printBtn:hover { background: #ff5a4a; }
-  #printBtn:disabled {
+  #printBtn:hover{ background: #ff5a4a; }
+  #printBtn:disabled{
     background: var(--safelight-dim);
-    color: var(--muted);
+    color: #9b8c8a;
     cursor: not-allowed;
   }
 
-  /* ---------- Preview Area ---------- */
-  #main {
+  /* ---------- Preview area ---------- */
+  #main{
     flex: 1;
     overflow: auto;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
-  #topBar {
-    background: var(--panel);
+  #ruler{
+    height: 22px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--ruler) 0, var(--ruler) 1px,
+      transparent 1px, transparent calc(1cm - 1px)
+    );
+    background-position: 40px 0;
     border-bottom: 1px solid var(--panel-line);
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
     position: sticky;
     top: 0;
     z-index: 5;
+    background-color: var(--bg);
   }
-  #topBar label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-    font-weight: 600;
-  }
-  #viewZoom { accent-color: var(--safelight); width: 140px; }
-  
-  #pagesContainer {
+  #pages{
     padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
-    transform-origin: top center;
-    flex: 1;
+    gap: 32px;
   }
-  .empty-state {
+  .empty-state{
     color: var(--muted);
     font-family: monospace;
     font-size: 13px;
-    padding: 80px 20px;
+    padding: 60px 20px;
     text-align: center;
     border: 1px dashed var(--panel-line);
     border-radius: 8px;
     max-width: 420px;
-    margin-top: 60px;
   }
-  .page {
+  .page{
     background: var(--paper);
-    box-shadow: 0 10px 30px var(--shadow);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.45);
     position: relative;
     flex: none;
-    overflow: hidden;
   }
-  .page .pagelabel {
+  .page .pagelabel{
     position: absolute;
-    top: -24px;
+    top: -22px;
     left: 0;
     font-family: monospace;
     font-size: 11px;
     color: var(--muted);
     letter-spacing: 0.05em;
   }
-  .cell {
+  .cell{
     position: absolute;
     overflow: hidden;
     background: #fff;
   }
-  .cell.cutlines {
-    outline: 1px dashed rgba(0, 0, 0, 0.35);
+  .cell.cutlines{
+    outline: 1px dashed #b9b4ac;
     outline-offset: -0.5px;
   }
-  .cell img {
+  .cell img{
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .cell img.rot {
+  .cell img.rot{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -454,37 +404,32 @@
     transform: translate(-50%,-50%) rotate(90deg);
   }
 
-  /* ---------- Print Rules ---------- */
-  @media print {
-    #sidebar, #topBar { display: none !important; }
-    body { background: #fff; color: #000; }
-    #main { overflow: visible; height: auto; }
-    #pagesContainer { padding: 0 !important; gap: 0 !important; transform: none !important; }
-    .page {
-      box-shadow: none !important;
-      margin: 0 !important;
+  /* ---------- Print ---------- */
+  @media print{
+    #sidebar, #ruler{ display:none !important; }
+    #main{ overflow: visible; height: auto; }
+    #pages{ padding:0; gap:0; }
+    .page{
+      box-shadow: none;
+      margin: 0;
       page-break-after: always;
     }
-    .page .pagelabel { display: none; }
-    .cell.cutlines { outline: 1px dashed #000 !important; }
+    .page .pagelabel{ display:none; }
   }
 </style>
 </head>
 <body>
 
 <aside id="sidebar">
-  <div class="header-row">
-    <h1>Print<span>Layout</span></h1>
-    <button class="theme-toggle-btn" id="themeToggleBtn">Dark</button>
-  </div>
-  <p class="sub">Advanced binary-packing photo array generator. Optimizes physical print layouts minimizing residual whitespace.</p>
+  <h1>Print<span>Layout</span></h1>
+  <p class="sub">Add one or more photos, set a size &amp; number of copies for each — they're packed together onto as few pages as possible.</p>
 
   <div class="field">
-    <label>Photos Matrix</label>
+    <label>Photos</label>
     <div id="itemsList"></div>
     <div id="dropZone">
-      <strong>Click to dispatch</strong> or drop targets<br/>
-      (Supports raw images concurrently)
+      <strong>Click to add</strong> or drag images here<br/>
+      (any format, multiple at once)
     </div>
     <input type="file" id="fileInput" accept="image/*" multiple />
   </div>
@@ -492,30 +437,30 @@
   <hr class="div"/>
 
   <div class="field">
-    <label>Canvas Bound Form Factor</label>
+    <label>Page size</label>
     <select id="pageSize">
       <option value="210x297">A4 (21.0 × 29.7 cm)</option>
       <option value="297x420">A3 (29.7 × 42.0 cm)</option>
       <option value="148x210">A5 (14.8 × 21.0 cm)</option>
       <option value="215.9x279.4">US Letter (21.6 × 27.9 cm)</option>
       <option value="215.9x355.6">US Legal (21.6 × 35.6 cm)</option>
-      <option value="101.6x152.4">4×6 in Photo Sheet (10.2 × 15.2 cm)</option>
-      <option value="custom">Custom Dimensions…</option>
+      <option value="101.6x152.4">4×6 in photo paper (10.2 × 15.2 cm)</option>
+      <option value="custom">Custom…</option>
     </select>
   </div>
 
   <div class="field" id="pageCustomField" style="display:none;">
     <div class="row2">
-      <div><label>W (cm)</label><input type="number" id="pageCustomW" step="0.1" value="21.0" /></div>
-      <div><label>H (cm)</label><input type="number" id="pageCustomH" step="0.1" value="29.7" /></div>
+      <div><label>Width (cm)</label><input type="number" id="pageCustomW" step="0.1" value="21.0" /></div>
+      <div><label>Height (cm)</label><input type="number" id="pageCustomH" step="0.1" value="29.7" /></div>
     </div>
   </div>
 
   <div class="field">
-    <label>Orientation Vector</label>
+    <label>Page orientation</label>
     <select id="pageOrient">
-      <option value="portrait">Portrait Axis</option>
-      <option value="landscape">Landscape Axis</option>
+      <option value="portrait">Portrait</option>
+      <option value="landscape">Landscape</option>
     </select>
   </div>
 
@@ -523,83 +468,79 @@
 
   <div class="row2">
     <div class="field">
-      <label>Kerning / Inter-Gap (mm)</label>
+      <label>Gap between photos (mm)</label>
       <input type="number" id="gap" min="0" step="0.5" value="2" />
     </div>
     <div class="field">
-      <label>Edge Margin (mm)</label>
+      <label>Page margin (mm)</label>
       <input type="number" id="margin" min="0" step="0.5" value="5" />
     </div>
   </div>
 
   <label class="checkbox-row">
     <input type="checkbox" id="autoRotate" checked />
-    2D Matrix Optimization (Bi-directional rotation)
+    Optimize layout (rotate photos to avoid wasted paper)
   </label>
   <label class="checkbox-row">
     <input type="checkbox" id="cutLines" checked />
-    Render Boundary Structural Guides
+    Show cut guide lines
   </label>
 
   <hr class="div"/>
 
   <div id="readout"></div>
 
-  <button id="printBtn">Compile &amp; Print</button>
+  <button id="printBtn">Print</button>
 </aside>
 
 <main id="main">
-  <div id="topBar">
-    <label for="viewZoom">Workspace Scale:</label>
-    <input type="range" id="viewZoom" min="30" max="100" value="85" />
-    <span id="zoomReadout" style="font-size: 12px; font-family: monospace; color: var(--muted)">85%</span>
-  </div>
-  <div id="pagesContainer"></div>
+  <div id="ruler"></div>
+  <div id="pages"></div>
 </main>
 
 <style id="pageStyleTag"></style>
 
 <div class="crop-overlay" id="cropOverlay">
   <div class="crop-modal">
-    <h2>Adjust aspect bounding matrix</h2>
+    <h2>Crop to fit the selected photo size</h2>
     <div class="crop-frame" id="cropFrame">
       <img id="cropImg" alt="" />
     </div>
     <div class="crop-controls">
-      <span>Zoom Focus</span>
+      <span>Zoom</span>
       <input type="range" id="zoomSlider" min="100" max="400" value="100" />
     </div>
     <div class="crop-buttons">
-      <button id="cropResetBtn">Reset Matrix</button>
-      <button id="cropCancelBtn">Abort</button>
-      <button id="cropApplyBtn" class="primary">Save Transformations</button>
+      <button id="cropResetBtn">Reset</button>
+      <button id="cropCancelBtn">Cancel</button>
+      <button id="cropApplyBtn" class="primary">Apply</button>
     </div>
   </div>
 </div>
 
 <script>
-  // ---------- System Node Selectors ----------
+  // ---------- Element refs ----------
   const fileInput = document.getElementById('fileInput');
   const dropZone = document.getElementById('dropZone');
   const itemsList = document.getElementById('itemsList');
+
   const pageSizeSel = document.getElementById('pageSize');
   const pageCustomField = document.getElementById('pageCustomField');
   const pageCustomW = document.getElementById('pageCustomW');
   const pageCustomH = document.getElementById('pageCustomH');
   const pageOrient = document.getElementById('pageOrient');
+
   const gapInput = document.getElementById('gap');
   const marginInput = document.getElementById('margin');
   const autoRotate = document.getElementById('autoRotate');
   const cutLines = document.getElementById('cutLines');
+
   const readout = document.getElementById('readout');
-  const pagesContainer = document.getElementById('pagesContainer');
+  const pagesEl = document.getElementById('pages');
   const printBtn = document.getElementById('printBtn');
   const pageStyleTag = document.getElementById('pageStyleTag');
-  const viewZoom = document.getElementById('viewZoom');
-  const zoomReadout = document.getElementById('zoomReadout');
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-  // Modal Context elements
+  // Crop modal elements
   const cropOverlay = document.getElementById('cropOverlay');
   const cropFrame = document.getElementById('cropFrame');
   const cropImgEl = document.getElementById('cropImg');
@@ -610,41 +551,19 @@
 
   const PHOTO_SIZES = [
     { value: '3.5x4.5', label: 'Passport (3.5 × 4.5 cm)' },
-    { value: '5.08x5.08', label: 'US Passport / OCI (5.08 × 5.08 cm)' },
-    { value: '2x2.5', label: 'Stamp Size (2.0 × 2.5 cm)' },
-    { value: '10.16x15.24', label: '4×6 Landscape Card (10.16 × 15.24 cm)' },
-    { value: 'custom', label: 'Custom Dimensional Spec…' }
+    { value: '5.08x5.08', label: 'US Passport / 2×2 in (5.08 × 5.08 cm)' },
+    { value: '2x2.5', label: 'Stamp size (2.0 × 2.5 cm)' },
+    { value: '10.16x15.24', label: '4×6 in (10.16 × 15.24 cm)' },
+    { value: 'custom', label: 'Custom…' }
   ];
 
-  let items = [];      // Structure: { id, rawImg, fileName, sizeKey, customW, customH, copies, crop, blobUrl }
+  let items = [];      // { id, rawImg, fileName, sizeKey, customW, customH, copies, crop, croppedDataUrl }
   let nextId = 1;
   let currentCropItem = null;
   let lastCrop = null;
   let dragging = false, dragStartX = 0, dragStartY = 0, dragOrigX = 0, dragOrigY = 0;
 
-  // ---------- Engine Theme Controller ----------
-  function initTheme() {
-    const activeTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', activeTheme);
-    themeToggleBtn.textContent = activeTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
-  }
-
-  themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', targetTheme);
-    localStorage.setItem('theme', targetTheme);
-    themeToggleBtn.textContent = targetTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
-  });
-
-  // ---------- Scale Workspace Zoom Controller ----------
-  viewZoom.addEventListener('input', () => {
-    const scale = viewZoom.value;
-    zoomReadout.textContent = `${scale}%`;
-    pagesContainer.style.transform = `scale(${scale / 100})`;
-  });
-
-  // ---------- Core Spatial Metric Adapters ----------
+  // ---------- Page size ----------
   function getPageSizeMm(){
     let wMm, hMm;
     if (pageSizeSel.value === 'custom'){
@@ -671,7 +590,7 @@
     return sz.w / sz.h;
   }
 
-  // ---------- Matrix Aspect Transformer (Cropper Engine) ----------
+  // ---------- Cropping ----------
   function computeFrameSize(ratio){
     const MAX = 320;
     let w, h;
@@ -707,13 +626,12 @@
     crop.offsetY = Math.min(0, Math.max(minY, crop.offsetY));
   }
 
-  // Upgraded Memory Allocation: Converts to Blobs to avoid Base64 leaks
-  function generateCroppedBlob(item, callback){
+  function generateCroppedDataUrl(item){
     const sz = itemPhotoSizeMm(item);
     const DPI = 300;
     let outW = Math.round(sz.w / 25.4 * DPI);
     let outH = Math.round(sz.h / 25.4 * DPI);
-    const MAXDIM = 1800; // Limit rendering scaling to protect execution frames
+    const MAXDIM = 1400;
     if (outW > MAXDIM || outH > MAXDIM){
       const s = MAXDIM / Math.max(outW, outH);
       outW = Math.round(outW * s);
@@ -731,19 +649,11 @@
     canvas.height = outH;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(item.rawImg, sx, sy, sw, sh, 0, 0, outW, outH);
-    
-    canvas.toBlob((blob) => {
-      if (item.blobUrl) URL.revokeObjectURL(item.blobUrl); // Revoke older pointers instantly
-      const newUrl = URL.createObjectURL(blob);
-      callback(newUrl);
-    }, 'image/jpeg', 0.90);
+    return canvas.toDataURL('image/jpeg', 0.92);
   }
 
-  function applyCropForItem(item, callback){
-    generateCroppedBlob(item, (url) => {
-      item.blobUrl = url;
-      if(callback) callback();
-    });
+  function applyCropForItem(item){
+    item.croppedDataUrl = generateCroppedDataUrl(item);
   }
 
   function updateCropTransform(){
@@ -756,7 +666,7 @@
 
   function openCropModal(item){
     currentCropItem = item;
-    lastCrop = JSON.parse(JSON.stringify(item.crop));
+    lastCrop = { ...item.crop };
     cropImgEl.src = item.rawImg.src;
     cropFrame.style.width = item.crop.frameW + 'px';
     cropFrame.style.height = item.crop.frameH + 'px';
@@ -785,11 +695,10 @@
 
   cropApplyBtn.addEventListener('click', () => {
     if (!currentCropItem) return;
-    applyCropForItem(currentCropItem, () => {
-      renderItemsList();
-      render();
-      closeCropModal();
-    });
+    applyCropForItem(currentCropItem);
+    renderItemsList();
+    render();
+    closeCropModal();
   });
 
   zoomSlider.addEventListener('input', () => {
@@ -829,7 +738,7 @@
     cropFrame.classList.remove('dragging');
   }));
 
-  // ---------- Native IO Handlers ----------
+  // ---------- File handling ----------
   dropZone.addEventListener('click', () => fileInput.click());
   ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e => {
     e.preventDefault(); dropZone.classList.add('drag');
@@ -860,14 +769,13 @@
             customH: 4.5,
             copies: 1,
             crop: { zoom: 1, offsetX: 0, offsetY: 0, frameW: 300, frameH: 300, baseScale: 1 },
-            blobUrl: null
+            croppedDataUrl: null
           };
           initCropForItem(item);
-          applyCropForItem(item, () => {
-            items.push(item);
-            renderItemsList();
-            render();
-          });
+          applyCropForItem(item);
+          items.push(item);
+          renderItemsList();
+          render();
         };
         img.src = e.target.result;
       };
@@ -875,7 +783,7 @@
     });
   }
 
-  // ---------- Item Matrix UI View Control ----------
+  // ---------- Items list UI ----------
   function renderItemsList(){
     itemsList.innerHTML = '';
     items.forEach(item => {
@@ -886,7 +794,7 @@
       const thumb = document.createElement('div');
       thumb.className = 'item-thumb';
       const thumbImg = document.createElement('img');
-      thumbImg.src = item.blobUrl || '';
+      thumbImg.src = item.croppedDataUrl || '';
       thumb.appendChild(thumbImg);
       card.appendChild(thumb);
 
@@ -960,10 +868,9 @@
       item.sizeKey = e.target.value;
       card.querySelector('.item-custom').style.display = item.sizeKey === 'custom' ? 'flex' : 'none';
       initCropForItem(item);
-      applyCropForItem(item, () => {
-        renderItemsList();
-        render();
-      });
+      applyCropForItem(item);
+      renderItemsList();
+      render();
     }
   });
 
@@ -980,11 +887,10 @@
       item.customW = parseFloat(card.querySelector('.item-customW').value) || item.customW;
       item.customH = parseFloat(card.querySelector('.item-customH').value) || item.customH;
       initCropForItem(item);
-      applyCropForItem(item, () => {
-        const thumbImg = card.querySelector('.item-thumb img');
-        if (thumbImg) thumbImg.src = item.blobUrl;
-        render();
-      });
+      applyCropForItem(item);
+      const thumbImg = card.querySelector('.item-thumb img');
+      if (thumbImg) thumbImg.src = item.croppedDataUrl;
+      render();
     }
   });
 
@@ -997,14 +903,13 @@
     if (e.target.classList.contains('item-crop')){
       openCropModal(item);
     } else if (e.target.classList.contains('item-remove')){
-      if (item.blobUrl) URL.revokeObjectURL(item.blobUrl); // Clear resource leaks
       items = items.filter(i => i.id !== item.id);
       renderItemsList();
       render();
     }
   });
 
-  // ---------- Global Parameter Updates ----------
+  // ---------- Global controls ----------
   pageSizeSel.addEventListener('change', () => {
     pageCustomField.style.display = pageSizeSel.value === 'custom' ? 'block' : 'none';
     render();
@@ -1012,98 +917,100 @@
   [pageOrient, gapInput, marginInput, autoRotate, cutLines, pageCustomW, pageCustomH]
     .forEach(el => el.addEventListener('input', render));
 
-  // ---------- Upgraded High-Efficiency 2D Bin Packing Engine ----------
-  // Implements a multi-pass, structural slice-packing heuristic tracking 
-  // dynamic sub-column spaces across sheets to minimize whitespace.
-  function packPages(units, availW, availH, gap, allowRotate) {
-    const EPS = 0.001;
-    // Sort primarily by area then max dimension descending
-    const sorted = units.slice().sort((a, b) => {
-      const areaA = a.w * a.h;
-      const areaB = b.w * b.h;
-      if (Math.abs(areaB - areaA) > EPS) return areaB - areaA;
-      return Math.max(b.w, b.h) - Math.max(a.w, a.h);
-    });
+  // ---------- MaxRects packing ----------
+  // Maintains the set of maximal free rectangles on each page. Each new
+  // photo is placed in the free rectangle that leaves the least wasted
+  // area (Best Area Fit, tie-broken by Best Short Side Fit), then every
+  // overlapping free rectangle is split into the largest remaining pieces.
+  // This lets smaller photos backfill leftover space anywhere on the page,
+  // not just within the row of the item that created it.
+  const RECT_EPS = 0.01;
 
+  function rectsOverlap(r, x, y, w, h){
+    return x < r.x + r.w - RECT_EPS && x + w > r.x + RECT_EPS &&
+           y < r.y + r.h - RECT_EPS && y + h > r.y + RECT_EPS;
+  }
+
+  function rectContained(a, b){
+    return a.x >= b.x - RECT_EPS && a.y >= b.y - RECT_EPS &&
+           a.x + a.w <= b.x + b.w + RECT_EPS && a.y + a.h <= b.y + b.h + RECT_EPS;
+  }
+
+  function pruneFreeRects(rects){
+    const filtered = rects.filter(r => r.w > RECT_EPS && r.h > RECT_EPS);
+    const out = [];
+    for (let i = 0; i < filtered.length; i++){
+      let contained = false;
+      for (let j = 0; j < filtered.length; j++){
+        if (i === j) continue;
+        if (rectContained(filtered[i], filtered[j])){ contained = true; break; }
+      }
+      if (!contained) out.push(filtered[i]);
+    }
+    return out;
+  }
+
+  function splitFreeRects(page, px, py, pw, ph){
+    const next = [];
+    for (const r of page.freeRects){
+      if (!rectsOverlap(r, px, py, pw, ph)){ next.push(r); continue; }
+      if (px > r.x) next.push({ x: r.x, y: r.y, w: px - r.x, h: r.h });
+      if (px + pw < r.x + r.w) next.push({ x: px + pw, y: r.y, w: (r.x + r.w) - (px + pw), h: r.h });
+      if (py > r.y) next.push({ x: r.x, y: r.y, w: r.w, h: py - r.y });
+      if (py + ph < r.y + r.h) next.push({ x: r.x, y: py + ph, w: r.w, h: (r.y + r.h) - (py + ph) });
+    }
+    page.freeRects = pruneFreeRects(next);
+  }
+
+  function tryPlaceOnPage(page, u, allowRotate, gap){
+    const orientations = (allowRotate && Math.abs(u.w - u.h) > RECT_EPS)
+      ? [{ w: u.w, h: u.h, rot: false }, { w: u.h, h: u.w, rot: true }]
+      : [{ w: u.w, h: u.h, rot: false }];
+
+    let best = null;
+    for (const o of orientations){
+      const fw = o.w + gap, fh = o.h + gap; // footprint includes spacing to the next item
+      for (const r of page.freeRects){
+        if (fw <= r.w + RECT_EPS && fh <= r.h + RECT_EPS){
+          const areaFit = r.w*r.h - fw*fh;
+          const shortSideFit = Math.min(r.w - fw, r.h - fh);
+          if (!best || areaFit < best.areaFit - RECT_EPS ||
+              (Math.abs(areaFit - best.areaFit) < RECT_EPS && shortSideFit < best.shortSideFit)){
+            best = { x: r.x, y: r.y, fw, fh, w: o.w, h: o.h, rot: o.rot, areaFit, shortSideFit };
+          }
+        }
+      }
+    }
+    if (!best) return false;
+
+    page.placements.push({ x: best.x, y: best.y, w: best.w, h: best.h, rot: best.rot, u });
+    splitFreeRects(page, best.x, best.y, best.fw, best.fh);
+    return true;
+  }
+
+  function packPages(units, availW, availH, gap, allowRotate){
+    const sorted = units.slice().sort((a, b) => (b.w*b.h) - (a.w*a.h));
     const pages = [];
     const skipped = [];
 
-    function orientations(u) {
-      if (!allowRotate || Math.abs(u.w - u.h) < EPS) return [{ w: u.w, h: u.h, rot: false }];
-      return [
-        { w: u.w, h: u.h, rot: false }, 
-        { w: u.h, h: u.w, rot: true }
-      ];
-    }
-
-    for (const u of sorted) {
+    for (const u of sorted){
       let placed = false;
-
-      // Iterative check over current page allocations
-      for (const page of pages) {
-        for (const shelf of page.shelves) {
-          for (const o of orientations(u)) {
-            const x = shelf.items.length === 0 ? 0 : shelf.usedW + gap;
-            if (o.h <= shelf.h + EPS && x + o.w <= availW + EPS) {
-              shelf.items.push({ w: o.w, h: o.h, x, rot: o.rot, u });
-              shelf.usedW = x + o.w;
-              placed = true;
-              break;
-            }
-          }
-          if (placed) break;
-        }
-        if (placed) break;
-
-        // Try to spin up a nested sub-shelf over the remaining space matrix
-        const y = page.usedH + gap;
-        for (const o of orientations(u)) {
-          if (o.w <= availW + EPS && y + o.h <= availH + EPS) {
-            page.shelves.push({
-              h: o.h,
-              y: y,
-              usedW: o.w,
-              items: [{ w: o.w, h: o.h, x: 0, rot: o.rot, u }]
-            });
-            page.usedH = y + o.h;
-            placed = true;
-            break;
-          }
-        }
-        if (placed) break;
+      for (const page of pages){
+        if (tryPlaceOnPage(page, u, allowRotate, gap)){ placed = true; break; }
       }
-
-      // Open new sheet matrix context if bounds fail
-      if (!placed) {
-        let bestFit = null;
-        for (const o of orientations(u)) {
-          if (o.w <= availW + EPS && o.h <= availH + EPS) {
-            bestFit = o;
-            break;
-          }
-        }
-
-        if (!bestFit) {
+      if (!placed){
+        const page = { freeRects: [{ x: 0, y: 0, w: availW, h: availH }], placements: [] };
+        if (tryPlaceOnPage(page, u, allowRotate, gap)){
+          pages.push(page);
+        } else {
           skipped.push(u);
-          continue;
         }
-
-        pages.push({
-          shelves: [{
-            h: bestFit.h,
-            y: 0,
-            usedW: bestFit.w,
-            items: [{ w: bestFit.w, h: bestFit.h, x: 0, rot: bestFit.rot, u }]
-          }],
-          usedH: bestFit.h
-        });
       }
     }
-
     return { pages, skipped };
   }
 
-  // ---------- Compilation & Matrix Generator Renderer ----------
+  // ---------- Render ----------
   function render(){
     const page = getPageSizeMm();
     const margin = parseFloat(marginInput.value) || 0;
@@ -1111,30 +1018,30 @@
     const allowRotate = autoRotate.checked;
 
     pageStyleTag.textContent = `@page { size: ${page.w}mm ${page.h}mm; margin: 0; }`;
-    pagesContainer.innerHTML = '';
+    pagesEl.innerHTML = '';
 
     if (items.length === 0){
-      pagesContainer.innerHTML = '<div class="empty-state">Load targeted photos into the canvas stream to compile print layout matrices.</div>';
-      readout.innerHTML = 'Workspace empty.';
+      pagesEl.innerHTML = '<div class="empty-state">Add a photo from the left panel to start.</div>';
+      readout.innerHTML = 'Add at least one photo to generate a layout.';
       printBtn.disabled = true;
       return;
     }
 
-    const availW = page.w - (2 * margin);
-    const availH = page.h - (2 * margin);
+    const availW = page.w - 2*margin;
+    const availH = page.h - 2*margin;
 
     const units = [];
     items.forEach(item => {
       const sz = itemPhotoSizeMm(item);
       for (let c = 0; c < item.copies; c++){
-        units.push({ w: sz.w, h: sz.h, img: item.blobUrl });
+        units.push({ w: sz.w, h: sz.h, img: item.croppedDataUrl });
       }
     });
 
     const { pages, skipped } = packPages(units, availW, availH, gap, allowRotate);
 
     if (pages.length === 0){
-      readout.innerHTML = '<span class="warn">Target configurations bound out of physical page capacity bounds. Minimize configurations.</span>';
+      readout.innerHTML = '<span class="warn">No photos fit on the page. Reduce sizes, margin or gap.</span>';
       printBtn.disabled = true;
       return;
     }
@@ -1148,57 +1055,54 @@
 
       const label = document.createElement('div');
       label.className = 'pagelabel';
-      label.textContent = `SHEET MATRIX ${pIdx+1} / ${pages.length} — [${page.w.toFixed(1)}mm × ${page.h.toFixed(1)}mm]`;
+      label.textContent = `Page ${pIdx+1} / ${pages.length}  —  ${page.w.toFixed(1)} × ${page.h.toFixed(1)} mm`;
       pageDiv.appendChild(label);
 
-      pg.shelves.forEach(shelf => {
-        shelf.items.forEach(it => {
-          const cell = document.createElement('div');
-          cell.className = 'cell' + (cutLines.checked ? ' cutlines' : '');
-          cell.style.left = (margin + it.x) + 'mm';
-          cell.style.top = (margin + shelf.y) + 'mm';
-          cell.style.width = it.w + 'mm';
-          cell.style.height = it.h + 'mm';
+      pg.placements.forEach(p => {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (cutLines.checked ? ' cutlines' : '');
+        cell.style.left = (margin + p.x) + 'mm';
+        cell.style.top = (margin + p.y) + 'mm';
+        cell.style.width = p.w + 'mm';
+        cell.style.height = p.h + 'mm';
 
-          if (it.u.img){
-            const img = document.createElement('img');
-            img.src = it.u.img;
-            if (it.rot){
-              img.className = 'rot';
-              img.style.width = it.h + 'mm';
-              img.style.height = it.w + 'mm';
-            }
-            cell.appendChild(img);
+        if (p.u.img){
+          const img = document.createElement('img');
+          img.src = p.u.img;
+          if (p.rot){
+            img.className = 'rot';
+            img.style.width = p.h + 'mm';
+            img.style.height = p.w + 'mm';
           }
-          pageDiv.appendChild(cell);
-        });
+          cell.appendChild(img);
+        }
+        pageDiv.appendChild(cell);
       });
 
-      pagesContainer.appendChild(pageDiv);
+      pagesEl.appendChild(pageDiv);
     });
 
     const totalCopies = units.length;
     const sizesSummary = items.map(item => {
       const sz = itemPhotoSizeMm(item);
-      return `${(sz.w / 10).toFixed(1)}×${(sz.h / 10).toFixed(1)} cm [x${item.copies}]`;
-    }).join(', ');
+      return `${sz.w.toFixed(1)} × ${sz.h.toFixed(1)} mm  ×${item.copies}`;
+    }).join('<br/>');
 
     let warn = '';
     if (skipped.length > 0){
-      warn = `<br/><span class="warn">Overflow Alert: ${skipped.length} indices bounding out of page thresholds were skipped.</span>`;
+      warn = `<br/><span class="warn">${skipped.length} photo(s) larger than the page were skipped.</span>`;
     }
 
     readout.innerHTML = `
-      <span class="k">Queue:</span> ${sizesSummary}<br/>
-      <span class="k">Total Units Packaged:</span> ${totalCopies}<br/>
-      <span class="k">Allocated Sheets:</span> ${pages.length}${warn}
+      <span class="k">Items:</span><br/>${sizesSummary}<br/>
+      <span class="k">Total photos:</span> ${totalCopies}<br/>
+      <span class="k">Pages needed:</span> ${pages.length}${warn}
     `;
   }
 
   printBtn.addEventListener('click', () => window.print());
 
-  // Initialization Run Sequence
-  initTheme();
+  // init
   render();
 </script>
 </body>
