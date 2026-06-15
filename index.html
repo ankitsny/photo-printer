@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Photo Print Layout</title>
+<style>
+  :root{
+    --bg: #18181a;
+    --panel: #212124;
+    --panel-line: #34343a;
+    --ink: #ece8e1;
+    --muted: #908c87;
+    --safelight: #e8483a;
+    --safelight-dim: #5a2620;
+    --paper: #fbfaf7;
+    --ruler: #c9c4ba;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width: 340px;
+    flex: none;
+    background: var(--panel);
+    border-right: 1px solid var(--panel-line);
+    padding: 24px 22px 90px;
+    overflow-y: auto;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+  #sidebar h1{
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 4px;
+    font-weight: 700;
+  }
+  #sidebar h1 span{ color: var(--safelight); }
+  #sidebar .sub{
+    color: var(--muted);
+    font-size: 12px;
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+
+  .field{ margin-bottom: 16px; }
+  .field label{
+    display:block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .row2{ display:flex; gap: 8px; }
+  .row2 > div{ flex: 1; }
+
+  select, input[type="number"], input[type="text"]{
+    width: 100%;
+    background: #2b2b2f;
+    border: 1px solid var(--panel-line);
+    color: var(--ink);
+    padding: 9px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: "SF Mono", "Consolas", monospace;
+  }
+  select:focus, input:focus{
+    outline: none;
+    border-color: var(--safelight);
+  }
+
+  /* ---------- Photo items list ---------- */
+  #itemsList{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .item-card{
+    display: flex;
+    gap: 10px;
+    background: #2b2b2f;
+    border: 1px solid var(--panel-line);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .item-thumb{
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #18181a;
+  }
+  .item-thumb img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .item-body{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .item-name{
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-row{
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .item-row select, .item-row input{
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .item-row label{
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex: none;
+  }
+  .item-custom{
+    display: flex;
+    gap: 6px;
+  }
+  .item-custom input{ font-size: 12px; padding: 6px 8px; }
+  .item-actions{
+    display: flex;
+    gap: 6px;
+  }
+  .item-actions button{
+    flex: 1;
+    font-size: 11px;
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid var(--panel-line);
+    background: #18181a;
+    color: var(--ink);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .item-actions button:hover{ border-color: var(--safelight); }
+  .item-actions button.remove:hover{ border-color: #ff5a4a; color: #ff5a4a; }
+
+  /* upload */
+  #dropZone{
+    border: 1px dashed var(--panel-line);
+    border-radius: 8px;
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  #dropZone:hover, #dropZone.drag{
+    border-color: var(--safelight);
+    color: var(--ink);
+    background: rgba(232,72,58,0.06);
+  }
+  #dropZone strong{ color: var(--ink); }
+  #fileInput{ display:none; }
+
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .checkbox-row input{ width: auto; accent-color: var(--safelight); }
+
+  hr.div{
+    border: none;
+    border-top: 1px solid var(--panel-line);
+    margin: 20px 0;
+  }
+
+  /* ---------- Crop modal ---------- */
+  .crop-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,11,0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .crop-modal{
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 90vw;
+  }
+  .crop-modal h2{
+    margin: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    align-self: flex-start;
+  }
+  .crop-frame{
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    border-radius: 4px;
+    touch-action: none;
+    cursor: grab;
+  }
+  .crop-frame.dragging{ cursor: grabbing; }
+  .crop-frame img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+    max-width: none;
+    max-height: none;
+  }
+  .crop-controls{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .crop-controls span{
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    letter-spacing: 0.05em;
+  }
+  .crop-controls input[type="range"]{
+    flex: 1;
+    accent-color: var(--safelight);
+  }
+  .crop-buttons{
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .crop-buttons button{
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-line);
+    background: #2b2b2f;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .crop-buttons button:hover{ border-color: var(--safelight); }
+  .crop-buttons button.primary{
+    background: var(--safelight);
+    border-color: var(--safelight);
+    color: #fff;
+    font-weight: 700;
+  }
+  .crop-buttons button.primary:hover{ background: #ff5a4a; }
+
+  /* result readout */
+  #readout{
+    background: #2b2b2f;
+    border: 1px solid var(--panel-line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  #readout .k{ color: var(--muted); }
+  #readout .warn{ color: var(--safelight); }
+
+  #printBtn{
+    width: 100%;
+    margin-top: 18px;
+    padding: 13px;
+    background: var(--safelight);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  #printBtn:hover{ background: #ff5a4a; }
+  #printBtn:disabled{
+    background: var(--safelight-dim);
+    color: #9b8c8a;
+    cursor: not-allowed;
+  }
+
+  /* ---------- Preview area ---------- */
+  #main{
+    flex: 1;
+    overflow: auto;
+    height: 100vh;
+  }
+  #ruler{
+    height: 22px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--ruler) 0, var(--ruler) 1px,
+      transparent 1px, transparent calc(1cm - 1px)
+    );
+    background-position: 40px 0;
+    border-bottom: 1px solid var(--panel-line);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: var(--bg);
+  }
+  #pages{
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .empty-state{
+    color: var(--muted);
+    font-family: monospace;
+    font-size: 13px;
+    padding: 60px 20px;
+    text-align: center;
+    border: 1px dashed var(--panel-line);
+    border-radius: 8px;
+    max-width: 420px;
+  }
+  .page{
+    background: var(--paper);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.45);
+    position: relative;
+    flex: none;
+  }
+  .page .pagelabel{
+    position: absolute;
+    top: -22px;
+    left: 0;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .cell{
+    position: absolute;
+    overflow: hidden;
+    background: #fff;
+  }
+  .cell.cutlines{
+    outline: 1px dashed #b9b4ac;
+    outline-offset: -0.5px;
+  }
+  .cell img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .cell img.rot{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%,-50%) rotate(90deg);
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    #sidebar, #ruler{ display:none !important; }
+    #main{ overflow: visible; height: auto; }
+    #pages{ padding:0; gap:0; }
+    .page{
+      box-shadow: none;
+      margin: 0;
+      page-break-after: always;
+    }
+    .page .pagelabel{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <h1>Print<span>Layout</span></h1>
+  <p class="sub">Add one or more photos, set a size &amp; number of copies for each — they're packed together onto as few pages as possible.</p>
+
+  <div class="field">
+    <label>Photos</label>
+    <div id="itemsList"></div>
+    <div id="dropZone">
+      <strong>Click to add</strong> or drag images here<br/>
+      (any format, multiple at once)
+    </div>
+    <input type="file" id="fileInput" accept="image/*" multiple />
+  </div>
+
+  <hr class="div"/>
+
+  <div class="field">
+    <label>Page size</label>
+    <select id="pageSize">
+      <option value="210x297">A4 (21.0 × 29.7 cm)</option>
+      <option value="297x420">A3 (29.7 × 42.0 cm)</option>
+      <option value="148x210">A5 (14.8 × 21.0 cm)</option>
+      <option value="215.9x279.4">US Letter (21.6 × 27.9 cm)</option>
+      <option value="215.9x355.6">US Legal (21.6 × 35.6 cm)</option>
+      <option value="101.6x152.4">4×6 in photo paper (10.2 × 15.2 cm)</option>
+      <option value="custom">Custom…</option>
+    </select>
+  </div>
+
+  <div class="field" id="pageCustomField" style="display:none;">
+    <div class="row2">
+      <div><label>Width (cm)</label><input type="number" id="pageCustomW" step="0.1" value="21.0" /></div>
+      <div><label>Height (cm)</label><input type="number" id="pageCustomH" step="0.1" value="29.7" /></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Page orientation</label>
+    <select id="pageOrient">
+      <option value="portrait">Portrait</option>
+      <option value="landscape">Landscape</option>
+    </select>
+  </div>
+
+  <hr class="div"/>
+
+  <div class="row2">
+    <div class="field">
+      <label>Gap between photos (mm)</label>
+      <input type="number" id="gap" min="0" step="0.5" value="2" />
+    </div>
+    <div class="field">
+      <label>Page margin (mm)</label>
+      <input type="number" id="margin" min="0" step="0.5" value="5" />
+    </div>
+  </div>
+
+  <label class="checkbox-row">
+    <input type="checkbox" id="autoRotate" checked />
+    Optimize layout (rotate photos to avoid wasted paper)
+  </label>
+  <label class="checkbox-row">
+    <input type="checkbox" id="cutLines" checked />
+    Show cut guide lines
+  </label>
+
+  <hr class="div"/>
+
+  <div id="readout"></div>
+
+  <button id="printBtn">Print</button>
+</aside>
+
+<main id="main">
+  <div id="ruler"></div>
+  <div id="pages"></div>
+</main>
+
+<style id="pageStyleTag"></style>
+
+<div class="crop-overlay" id="cropOverlay">
+  <div class="crop-modal">
+    <h2>Crop to fit the selected photo size</h2>
+    <div class="crop-frame" id="cropFrame">
+      <img id="cropImg" alt="" />
+    </div>
+    <div class="crop-controls">
+      <span>Zoom</span>
+      <input type="range" id="zoomSlider" min="100" max="400" value="100" />
+    </div>
+    <div class="crop-buttons">
+      <button id="cropResetBtn">Reset</button>
+      <button id="cropCancelBtn">Cancel</button>
+      <button id="cropApplyBtn" class="primary">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- Element refs ----------
+  const fileInput = document.getElementById('fileInput');
+  const dropZone = document.getElementById('dropZone');
+  const itemsList = document.getElementById('itemsList');
+
+  const pageSizeSel = document.getElementById('pageSize');
+  const pageCustomField = document.getElementById('pageCustomField');
+  const pageCustomW = document.getElementById('pageCustomW');
+  const pageCustomH = document.getElementById('pageCustomH');
+  const pageOrient = document.getElementById('pageOrient');
+
+  const gapInput = document.getElementById('gap');
+  const marginInput = document.getElementById('margin');
+  const autoRotate = document.getElementById('autoRotate');
+  const cutLines = document.getElementById('cutLines');
+
+  const readout = document.getElementById('readout');
+  const pagesEl = document.getElementById('pages');
+  const printBtn = document.getElementById('printBtn');
+  const pageStyleTag = document.getElementById('pageStyleTag');
+
+  // Crop modal elements
+  const cropOverlay = document.getElementById('cropOverlay');
+  const cropFrame = document.getElementById('cropFrame');
+  const cropImgEl = document.getElementById('cropImg');
+  const zoomSlider = document.getElementById('zoomSlider');
+  const cropResetBtn = document.getElementById('cropResetBtn');
+  const cropCancelBtn = document.getElementById('cropCancelBtn');
+  const cropApplyBtn = document.getElementById('cropApplyBtn');
+
+  const PHOTO_SIZES = [
+    { value: '3.5x4.5', label: 'Passport (3.5 × 4.5 cm)' },
+    { value: '5.08x5.08', label: 'US Passport / 2×2 in (5.08 × 5.08 cm)' },
+    { value: '2x2.5', label: 'Stamp size (2.0 × 2.5 cm)' },
+    { value: '10.16x15.24', label: '4×6 in (10.16 × 15.24 cm)' },
+    { value: 'custom', label: 'Custom…' }
+  ];
+
+  let items = [];      // { id, rawImg, fileName, sizeKey, customW, customH, copies, crop, croppedDataUrl }
+  let nextId = 1;
+  let currentCropItem = null;
+  let lastCrop = null;
+  let dragging = false, dragStartX = 0, dragStartY = 0, dragOrigX = 0, dragOrigY = 0;
+
+  // ---------- Page size ----------
+  function getPageSizeMm(){
+    let wMm, hMm;
+    if (pageSizeSel.value === 'custom'){
+      wMm = (parseFloat(pageCustomW.value) || 21) * 10;
+      hMm = (parseFloat(pageCustomH.value) || 29.7) * 10;
+    } else {
+      [wMm, hMm] = pageSizeSel.value.split('x').map(parseFloat);
+    }
+    if (pageOrient.value === 'landscape' && wMm < hMm){ [wMm, hMm] = [hMm, wMm]; }
+    else if (pageOrient.value === 'portrait' && wMm > hMm){ [wMm, hMm] = [hMm, wMm]; }
+    return { w: wMm, h: hMm };
+  }
+
+  function itemPhotoSizeMm(item){
+    if (item.sizeKey === 'custom'){
+      return { w: (parseFloat(item.customW)||3.5) * 10, h: (parseFloat(item.customH)||4.5) * 10 };
+    }
+    const [wCm, hCm] = item.sizeKey.split('x').map(parseFloat);
+    return { w: wCm * 10, h: hCm * 10 };
+  }
+
+  function getItemRatio(item){
+    const sz = itemPhotoSizeMm(item);
+    return sz.w / sz.h;
+  }
+
+  // ---------- Cropping ----------
+  function computeFrameSize(ratio){
+    const MAX = 320;
+    let w, h;
+    if (ratio >= 1){ w = MAX; h = MAX / ratio; }
+    else { h = MAX; w = MAX * ratio; }
+    return { w: Math.round(w), h: Math.round(h) };
+  }
+
+  function initCropForItem(item){
+    const frame = computeFrameSize(getItemRatio(item));
+    const crop = item.crop;
+    crop.frameW = frame.w;
+    crop.frameH = frame.h;
+    crop.baseScale = Math.max(crop.frameW / item.rawImg.naturalWidth, crop.frameH / item.rawImg.naturalHeight);
+    crop.zoom = 1;
+    centerCrop(item);
+  }
+
+  function centerCrop(item){
+    const crop = item.crop, img = item.rawImg;
+    const dispW = img.naturalWidth * crop.baseScale * crop.zoom;
+    const dispH = img.naturalHeight * crop.baseScale * crop.zoom;
+    crop.offsetX = (crop.frameW - dispW) / 2;
+    crop.offsetY = (crop.frameH - dispH) / 2;
+  }
+
+  function clampOffsets(item){
+    const crop = item.crop, img = item.rawImg;
+    const dispW = img.naturalWidth * crop.baseScale * crop.zoom;
+    const dispH = img.naturalHeight * crop.baseScale * crop.zoom;
+    const minX = crop.frameW - dispW, minY = crop.frameH - dispH;
+    crop.offsetX = Math.min(0, Math.max(minX, crop.offsetX));
+    crop.offsetY = Math.min(0, Math.max(minY, crop.offsetY));
+  }
+
+  function generateCroppedDataUrl(item){
+    const sz = itemPhotoSizeMm(item);
+    const DPI = 300;
+    let outW = Math.round(sz.w / 25.4 * DPI);
+    let outH = Math.round(sz.h / 25.4 * DPI);
+    const MAXDIM = 1400;
+    if (outW > MAXDIM || outH > MAXDIM){
+      const s = MAXDIM / Math.max(outW, outH);
+      outW = Math.round(outW * s);
+      outH = Math.round(outH * s);
+    }
+    const crop = item.crop;
+    const effScale = crop.baseScale * crop.zoom;
+    const sx = -crop.offsetX / effScale;
+    const sy = -crop.offsetY / effScale;
+    const sw = crop.frameW / effScale;
+    const sh = crop.frameH / effScale;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(item.rawImg, sx, sy, sw, sh, 0, 0, outW, outH);
+    return canvas.toDataURL('image/jpeg', 0.92);
+  }
+
+  function applyCropForItem(item){
+    item.croppedDataUrl = generateCroppedDataUrl(item);
+  }
+
+  function updateCropTransform(){
+    const item = currentCropItem;
+    const crop = item.crop, img = item.rawImg;
+    cropImgEl.style.width = (img.naturalWidth * crop.baseScale) + 'px';
+    cropImgEl.style.height = (img.naturalHeight * crop.baseScale) + 'px';
+    cropImgEl.style.transform = `translate(${crop.offsetX}px, ${crop.offsetY}px) scale(${crop.zoom})`;
+  }
+
+  function openCropModal(item){
+    currentCropItem = item;
+    lastCrop = { ...item.crop };
+    cropImgEl.src = item.rawImg.src;
+    cropFrame.style.width = item.crop.frameW + 'px';
+    cropFrame.style.height = item.crop.frameH + 'px';
+    zoomSlider.value = Math.round(item.crop.zoom * 100);
+    updateCropTransform();
+    cropOverlay.style.display = 'flex';
+  }
+
+  function closeCropModal(){
+    cropOverlay.style.display = 'none';
+    currentCropItem = null;
+  }
+
+  cropCancelBtn.addEventListener('click', () => {
+    if (currentCropItem && lastCrop) Object.assign(currentCropItem.crop, lastCrop);
+    closeCropModal();
+  });
+
+  cropResetBtn.addEventListener('click', () => {
+    if (!currentCropItem) return;
+    currentCropItem.crop.zoom = 1;
+    centerCrop(currentCropItem);
+    zoomSlider.value = 100;
+    updateCropTransform();
+  });
+
+  cropApplyBtn.addEventListener('click', () => {
+    if (!currentCropItem) return;
+    applyCropForItem(currentCropItem);
+    renderItemsList();
+    render();
+    closeCropModal();
+  });
+
+  zoomSlider.addEventListener('input', () => {
+    if (!currentCropItem) return;
+    const crop = currentCropItem.crop;
+    const newZoom = zoomSlider.value / 100;
+    const effOld = crop.baseScale * crop.zoom;
+    const centerImgX = (crop.frameW / 2 - crop.offsetX) / effOld;
+    const centerImgY = (crop.frameH / 2 - crop.offsetY) / effOld;
+    crop.zoom = newZoom;
+    const effNew = crop.baseScale * crop.zoom;
+    crop.offsetX = crop.frameW / 2 - centerImgX * effNew;
+    crop.offsetY = crop.frameH / 2 - centerImgY * effNew;
+    clampOffsets(currentCropItem);
+    updateCropTransform();
+  });
+
+  cropFrame.addEventListener('pointerdown', e => {
+    if (!currentCropItem) return;
+    dragging = true;
+    cropFrame.classList.add('dragging');
+    cropFrame.setPointerCapture(e.pointerId);
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragOrigX = currentCropItem.crop.offsetX;
+    dragOrigY = currentCropItem.crop.offsetY;
+  });
+  cropFrame.addEventListener('pointermove', e => {
+    if (!dragging || !currentCropItem) return;
+    currentCropItem.crop.offsetX = dragOrigX + (e.clientX - dragStartX);
+    currentCropItem.crop.offsetY = dragOrigY + (e.clientY - dragStartY);
+    clampOffsets(currentCropItem);
+    updateCropTransform();
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev => cropFrame.addEventListener(ev, () => {
+    dragging = false;
+    cropFrame.classList.remove('dragging');
+  }));
+
+  // ---------- File handling ----------
+  dropZone.addEventListener('click', () => fileInput.click());
+  ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e => {
+    e.preventDefault(); dropZone.classList.add('drag');
+  }));
+  ['dragleave','dragend','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+    e.preventDefault(); dropZone.classList.remove('drag');
+  }));
+  dropZone.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', e => {
+    if (e.target.files.length) addFiles(e.target.files);
+    fileInput.value = '';
+  });
+
+  function addFiles(fileList){
+    Array.from(fileList).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const item = {
+            id: nextId++,
+            rawImg: img,
+            fileName: file.name,
+            sizeKey: '3.5x4.5',
+            customW: 3.5,
+            customH: 4.5,
+            copies: 1,
+            crop: { zoom: 1, offsetX: 0, offsetY: 0, frameW: 300, frameH: 300, baseScale: 1 },
+            croppedDataUrl: null
+          };
+          initCropForItem(item);
+          applyCropForItem(item);
+          items.push(item);
+          renderItemsList();
+          render();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ---------- Items list UI ----------
+  function renderItemsList(){
+    itemsList.innerHTML = '';
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.dataset.id = item.id;
+
+      const thumb = document.createElement('div');
+      thumb.className = 'item-thumb';
+      const thumbImg = document.createElement('img');
+      thumbImg.src = item.croppedDataUrl || '';
+      thumb.appendChild(thumbImg);
+      card.appendChild(thumb);
+
+      const body = document.createElement('div');
+      body.className = 'item-body';
+
+      const name = document.createElement('div');
+      name.className = 'item-name';
+      name.textContent = item.fileName;
+      body.appendChild(name);
+
+      const sizeRow = document.createElement('div');
+      sizeRow.className = 'item-row';
+      const sizeSel = document.createElement('select');
+      sizeSel.className = 'item-size';
+      PHOTO_SIZES.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.label;
+        if (opt.value === item.sizeKey) o.selected = true;
+        sizeSel.appendChild(o);
+      });
+      sizeRow.appendChild(sizeSel);
+      body.appendChild(sizeRow);
+
+      const customRow = document.createElement('div');
+      customRow.className = 'item-custom';
+      customRow.style.display = item.sizeKey === 'custom' ? 'flex' : 'none';
+      const wInput = document.createElement('input');
+      wInput.type = 'number'; wInput.step = '0.1'; wInput.className = 'item-customW';
+      wInput.value = item.customW; wInput.placeholder = 'W cm';
+      const hInput = document.createElement('input');
+      hInput.type = 'number'; hInput.step = '0.1'; hInput.className = 'item-customH';
+      hInput.value = item.customH; hInput.placeholder = 'H cm';
+      customRow.appendChild(wInput);
+      customRow.appendChild(hInput);
+      body.appendChild(customRow);
+
+      const copiesRow = document.createElement('div');
+      copiesRow.className = 'item-row';
+      const copiesLabel = document.createElement('label');
+      copiesLabel.textContent = 'Copies';
+      const copiesInputEl = document.createElement('input');
+      copiesInputEl.type = 'number'; copiesInputEl.min = '1'; copiesInputEl.className = 'item-copies';
+      copiesInputEl.value = item.copies;
+      copiesRow.appendChild(copiesLabel);
+      copiesRow.appendChild(copiesInputEl);
+      body.appendChild(copiesRow);
+
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      const cropBtn = document.createElement('button');
+      cropBtn.className = 'item-crop'; cropBtn.textContent = 'Crop';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'item-remove remove'; removeBtn.textContent = 'Remove';
+      actions.appendChild(cropBtn);
+      actions.appendChild(removeBtn);
+      body.appendChild(actions);
+
+      card.appendChild(body);
+      itemsList.appendChild(card);
+    });
+  }
+
+  itemsList.addEventListener('change', e => {
+    const card = e.target.closest('.item-card');
+    if (!card) return;
+    const item = items.find(i => i.id === Number(card.dataset.id));
+    if (!item) return;
+    if (e.target.classList.contains('item-size')){
+      item.sizeKey = e.target.value;
+      card.querySelector('.item-custom').style.display = item.sizeKey === 'custom' ? 'flex' : 'none';
+      initCropForItem(item);
+      applyCropForItem(item);
+      renderItemsList();
+      render();
+    }
+  });
+
+  itemsList.addEventListener('input', e => {
+    const card = e.target.closest('.item-card');
+    if (!card) return;
+    const item = items.find(i => i.id === Number(card.dataset.id));
+    if (!item) return;
+
+    if (e.target.classList.contains('item-copies')){
+      item.copies = Math.max(1, parseInt(e.target.value) || 1);
+      render();
+    } else if (e.target.classList.contains('item-customW') || e.target.classList.contains('item-customH')){
+      item.customW = parseFloat(card.querySelector('.item-customW').value) || item.customW;
+      item.customH = parseFloat(card.querySelector('.item-customH').value) || item.customH;
+      initCropForItem(item);
+      applyCropForItem(item);
+      const thumbImg = card.querySelector('.item-thumb img');
+      if (thumbImg) thumbImg.src = item.croppedDataUrl;
+      render();
+    }
+  });
+
+  itemsList.addEventListener('click', e => {
+    const card = e.target.closest('.item-card');
+    if (!card) return;
+    const item = items.find(i => i.id === Number(card.dataset.id));
+    if (!item) return;
+
+    if (e.target.classList.contains('item-crop')){
+      openCropModal(item);
+    } else if (e.target.classList.contains('item-remove')){
+      items = items.filter(i => i.id !== item.id);
+      renderItemsList();
+      render();
+    }
+  });
+
+  // ---------- Global controls ----------
+  pageSizeSel.addEventListener('change', () => {
+    pageCustomField.style.display = pageSizeSel.value === 'custom' ? 'block' : 'none';
+    render();
+  });
+  [pageOrient, gapInput, marginInput, autoRotate, cutLines, pageCustomW, pageCustomH]
+    .forEach(el => el.addEventListener('input', render));
+
+  // ---------- Shelf packing ----------
+  // Packs rectangles of (possibly) different sizes onto as few pages as
+  // possible, trying both orientations of each rectangle when allowed.
+  function packPages(units, availW, availH, gap, allowRotate){
+    const EPS = 0.01;
+    const sorted = units.slice().sort((a, b) => {
+      const am = Math.max(a.w, a.h), bm = Math.max(b.w, b.h);
+      if (Math.abs(bm - am) > EPS) return bm - am;
+      return Math.max(b.w, b.h) - Math.max(a.w, a.h);
+    });
+
+    function orientations(u){
+      if (!allowRotate || Math.abs(u.w - u.h) < EPS) return [{ w: u.w, h: u.h, rot: false }];
+      return [{ w: u.w, h: u.h, rot: false }, { w: u.h, h: u.w, rot: true }];
+    }
+
+    const pages = [];
+    const skipped = [];
+
+    for (const u of sorted){
+      let placed = false;
+
+      // 1) try to fit into an existing shelf on any page
+      for (const pg of pages){
+        for (const shelf of pg.shelves){
+          for (const o of orientations(u)){
+            const x = shelf.items.length === 0 ? 0 : shelf.usedW + gap;
+            if (o.h <= shelf.h + EPS && x + o.w <= availW + EPS){
+              shelf.items.push({ w: o.w, h: o.h, x, rot: o.rot, u });
+              shelf.usedW = x + o.w;
+              placed = true;
+              break;
+            }
+          }
+          if (placed) break;
+        }
+        if (placed) break;
+      }
+
+      // 2) try a new shelf on the last page
+      if (!placed && pages.length > 0){
+        const pg = pages[pages.length - 1];
+        for (const o of orientations(u)){
+          if (o.w <= availW + EPS){
+            const y = pg.shelves.length > 0 ? pg.usedH + gap : 0;
+            if (y + o.h <= availH + EPS){
+              pg.shelves.push({ h: o.h, y, usedW: o.w, items: [{ w: o.w, h: o.h, x: 0, rot: o.rot, u }] });
+              pg.usedH = y + o.h;
+              placed = true;
+              break;
+            }
+          }
+        }
+      }
+
+      // 3) start a new page
+      if (!placed){
+        const fit = orientations(u).find(o => o.w <= availW + EPS && o.h <= availH + EPS);
+        if (!fit){ skipped.push(u); continue; }
+        pages.push({
+          shelves: [{ h: fit.h, y: 0, usedW: fit.w, items: [{ w: fit.w, h: fit.h, x: 0, rot: fit.rot, u }] }],
+          usedH: fit.h
+        });
+      }
+    }
+
+    return { pages, skipped };
+  }
+
+  // ---------- Render ----------
+  function render(){
+    const page = getPageSizeMm();
+    const margin = parseFloat(marginInput.value) || 0;
+    const gap = parseFloat(gapInput.value) || 0;
+    const allowRotate = autoRotate.checked;
+
+    pageStyleTag.textContent = `@page { size: ${page.w}mm ${page.h}mm; margin: 0; }`;
+    pagesEl.innerHTML = '';
+
+    if (items.length === 0){
+      pagesEl.innerHTML = '<div class="empty-state">Add a photo from the left panel to start.</div>';
+      readout.innerHTML = 'Add at least one photo to generate a layout.';
+      printBtn.disabled = true;
+      return;
+    }
+
+    const availW = page.w - 2*margin;
+    const availH = page.h - 2*margin;
+
+    const units = [];
+    items.forEach(item => {
+      const sz = itemPhotoSizeMm(item);
+      for (let c = 0; c < item.copies; c++){
+        units.push({ w: sz.w, h: sz.h, img: item.croppedDataUrl });
+      }
+    });
+
+    const { pages, skipped } = packPages(units, availW, availH, gap, allowRotate);
+
+    if (pages.length === 0){
+      readout.innerHTML = '<span class="warn">No photos fit on the page. Reduce sizes, margin or gap.</span>';
+      printBtn.disabled = true;
+      return;
+    }
+    printBtn.disabled = false;
+
+    pages.forEach((pg, pIdx) => {
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page';
+      pageDiv.style.width = page.w + 'mm';
+      pageDiv.style.height = page.h + 'mm';
+
+      const label = document.createElement('div');
+      label.className = 'pagelabel';
+      label.textContent = `Page ${pIdx+1} / ${pages.length}  —  ${page.w.toFixed(1)} × ${page.h.toFixed(1)} mm`;
+      pageDiv.appendChild(label);
+
+      pg.shelves.forEach(shelf => {
+        shelf.items.forEach(it => {
+          const cell = document.createElement('div');
+          cell.className = 'cell' + (cutLines.checked ? ' cutlines' : '');
+          cell.style.left = (margin + it.x) + 'mm';
+          cell.style.top = (margin + shelf.y) + 'mm';
+          cell.style.width = it.w + 'mm';
+          cell.style.height = it.h + 'mm';
+
+          if (it.u.img){
+            const img = document.createElement('img');
+            img.src = it.u.img;
+            if (it.rot){
+              img.className = 'rot';
+              img.style.width = it.h + 'mm';
+              img.style.height = it.w + 'mm';
+            }
+            cell.appendChild(img);
+          }
+          pageDiv.appendChild(cell);
+        });
+      });
+
+      pagesEl.appendChild(pageDiv);
+    });
+
+    const totalCopies = units.length;
+    const sizesSummary = items.map(item => {
+      const sz = itemPhotoSizeMm(item);
+      return `${sz.w.toFixed(1)} × ${sz.h.toFixed(1)} mm  ×${item.copies}`;
+    }).join('<br/>');
+
+    let warn = '';
+    if (skipped.length > 0){
+      warn = `<br/><span class="warn">${skipped.length} photo(s) larger than the page were skipped.</span>`;
+    }
+
+    readout.innerHTML = `
+      <span class="k">Items:</span><br/>${sizesSummary}<br/>
+      <span class="k">Total photos:</span> ${totalCopies}<br/>
+      <span class="k">Pages needed:</span> ${pages.length}${warn}
+    `;
+  }
+
+  printBtn.addEventListener('click', () => window.print());
+
+  // init
+  render();
+</script>
+</body>
+</html>
