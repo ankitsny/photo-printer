@@ -1,1109 +1,1759 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Photo Print Layout</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PrintLayout Studio</title>
 <style>
-  :root{
-    --bg: #18181a;
-    --panel: #212124;
-    --panel-line: #34343a;
-    --ink: #ece8e1;
-    --muted: #908c87;
-    --safelight: #e8483a;
-    --safelight-dim: #5a2620;
-    --paper: #fbfaf7;
-    --ruler: #c9c4ba;
-  }
-  *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    display: flex;
-    min-height: 100vh;
-  }
+/* ═══════════════════════════════ TOKENS ══════════════════════════════ */
+:root{
+  --r:8px; --r-sm:5px; --r-lg:12px;
+  --gap:8px;
+  --sidebar-w:360px;
+  --trans:.15s ease;
+}
+[data-theme="dark"]{
+  --bg:#111113;
+  --surface:#1c1c1f;
+  --surface2:#242428;
+  --surface3:#2d2d32;
+  --border:#38383e;
+  --border-focus:#e8483a;
+  --ink:#edeae3;
+  --ink2:#a09b95;
+  --ink3:#6b6760;
+  --accent:#e8483a;
+  --accent-dim:#4a1e1a;
+  --accent-hover:#ff5a4a;
+  --paper:#f8f7f3;
+  --cut:#b0aaa0;
+  --shadow:rgba(0,0,0,.55);
+  --ruler-bg:#161618;
+  --ruler-tick:#3e3e44;
+  --ruler-label:#5c5c64;
+  --scrollbar:#2a2a2f;
+  --scrollbar-thumb:#3e3e44;
+}
+[data-theme="light"]{
+  --bg:#e8e6e0;
+  --surface:#f2f0ea;
+  --surface2:#ffffff;
+  --surface3:#eceae4;
+  --border:#d0cdc5;
+  --border-focus:#d63a2d;
+  --ink:#1a1a1a;
+  --ink2:#5a5650;
+  --ink3:#9b9690;
+  --accent:#d63a2d;
+  --accent-dim:#fde8e6;
+  --accent-hover:#b83028;
+  --paper:#ffffff;
+  --cut:#8a857c;
+  --shadow:rgba(0,0,0,.18);
+  --ruler-bg:#dedad3;
+  --ruler-tick:#b5b0a8;
+  --ruler-label:#9a9590;
+  --scrollbar:#dedad3;
+  --scrollbar-thumb:#c0bbb3;
+}
 
-  /* ---------- Sidebar ---------- */
-  #sidebar{
-    width: 340px;
-    flex: none;
-    background: var(--panel);
-    border-right: 1px solid var(--panel-line);
-    padding: 24px 22px 90px;
-    overflow-y: auto;
-    height: 100vh;
-    position: sticky;
-    top: 0;
-  }
-  #sidebar h1{
-    font-size: 17px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin: 0 0 4px;
-    font-weight: 700;
-  }
-  #sidebar h1 span{ color: var(--safelight); }
-  #sidebar .sub{
-    color: var(--muted);
-    font-size: 12px;
-    margin: 0 0 22px;
-    line-height: 1.5;
-  }
+/* ═══════════════════════════════ RESET ══════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:13px;
+  background:var(--bg);
+  color:var(--ink);
+  display:flex;
+  transition:background var(--trans),color var(--trans);
+}
 
-  .field{ margin-bottom: 16px; }
-  .field label{
-    display:block;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .row2{ display:flex; gap: 8px; }
-  .row2 > div{ flex: 1; }
+/* ═══════════════════════════════ SCROLLBARS ══════════════════════════════ */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--scrollbar);}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px;}
 
-  select, input[type="number"], input[type="text"]{
-    width: 100%;
-    background: #2b2b2f;
-    border: 1px solid var(--panel-line);
-    color: var(--ink);
-    padding: 9px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: "SF Mono", "Consolas", monospace;
-  }
-  select:focus, input:focus{
-    outline: none;
-    border-color: var(--safelight);
-  }
+/* ═══════════════════════════════ SIDEBAR ══════════════════════════════ */
+#sidebar{
+  width:var(--sidebar-w);
+  flex:none;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  transition:background var(--trans),border-color var(--trans);
+  z-index:10;
+}
+#sidebarHeader{
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex:none;
+}
+.wordmark{
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:-.01em;
+}
+.wordmark em{color:var(--accent);font-style:normal;}
+.wordmark small{
+  display:block;
+  font-size:10px;
+  font-weight:400;
+  color:var(--ink3);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  margin-top:1px;
+}
 
-  /* ---------- Photo items list ---------- */
-  #itemsList{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .item-card{
-    display: flex;
-    gap: 10px;
-    background: #2b2b2f;
-    border: 1px solid var(--panel-line);
-    border-radius: 8px;
-    padding: 10px;
-  }
-  .item-thumb{
-    width: 56px;
-    height: 56px;
-    flex: none;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #18181a;
-  }
-  .item-thumb img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .item-body{
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .item-name{
-    font-size: 11px;
-    color: var(--muted);
-    font-family: monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .item-row{
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  .item-row select, .item-row input{
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-  .item-row label{
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    flex: none;
-  }
-  .item-custom{
-    display: flex;
-    gap: 6px;
-  }
-  .item-custom input{ font-size: 12px; padding: 6px 8px; }
-  .item-actions{
-    display: flex;
-    gap: 6px;
-  }
-  .item-actions button{
-    flex: 1;
-    font-size: 11px;
-    padding: 6px;
-    border-radius: 5px;
-    border: 1px solid var(--panel-line);
-    background: #18181a;
-    color: var(--ink);
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .item-actions button:hover{ border-color: var(--safelight); }
-  .item-actions button.remove:hover{ border-color: #ff5a4a; color: #ff5a4a; }
+#sidebarBody{
+  flex:1;
+  overflow-y:auto;
+  padding:0 0 80px;
+}
 
-  /* upload */
-  #dropZone{
-    border: 1px dashed var(--panel-line);
-    border-radius: 8px;
-    padding: 18px 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  #dropZone:hover, #dropZone.drag{
-    border-color: var(--safelight);
-    color: var(--ink);
-    background: rgba(232,72,58,0.06);
-  }
-  #dropZone strong{ color: var(--ink); }
-  #fileInput{ display:none; }
+/* ═══════════════════════════════ SECTIONS ══════════════════════════════ */
+.section{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+.section-title{
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+  color:var(--ink3);
+  margin-bottom:12px;
+}
 
-  .checkbox-row{
-    display:flex;
-    align-items:center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--ink);
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
-  .checkbox-row input{ width: auto; accent-color: var(--safelight); }
+/* ═══════════════════════════════ FIELDS ══════════════════════════════ */
+.field{margin-bottom:12px;}
+.field:last-child{margin-bottom:0;}
+.field > label{
+  display:block;
+  font-size:11px;
+  color:var(--ink2);
+  margin-bottom:5px;
+  font-weight:500;
+}
+.row2{display:flex;gap:8px;}
+.row2>div{flex:1;}
 
-  hr.div{
-    border: none;
-    border-top: 1px solid var(--panel-line);
-    margin: 20px 0;
-  }
+select,.input{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--ink);
+  padding:8px 10px;
+  border-radius:var(--r-sm);
+  font-size:12.5px;
+  font-family:inherit;
+  transition:border-color var(--trans),background var(--trans);
+  appearance:none;
+  -webkit-appearance:none;
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:28px;
+}
+select:focus,.input:focus{
+  outline:none;
+  border-color:var(--border-focus);
+}
 
-  /* ---------- Crop modal ---------- */
-  .crop-overlay{
-    position: fixed;
-    inset: 0;
-    background: rgba(10,10,11,0.82);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  .crop-modal{
-    background: var(--panel);
-    border: 1px solid var(--panel-line);
-    border-radius: 10px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    max-width: 90vw;
-  }
-  .crop-modal h2{
-    margin: 0;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    align-self: flex-start;
-  }
-  .crop-frame{
-    position: relative;
-    overflow: hidden;
-    background: #000;
-    border-radius: 4px;
-    touch-action: none;
-    cursor: grab;
-  }
-  .crop-frame.dragging{ cursor: grabbing; }
-  .crop-frame img{
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: 0 0;
-    user-select: none;
-    -webkit-user-drag: none;
-    pointer-events: none;
-    max-width: none;
-    max-height: none;
-  }
-  .crop-controls{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-  .crop-controls span{
-    font-size: 11px;
-    color: var(--muted);
-    font-family: monospace;
-    letter-spacing: 0.05em;
-  }
-  .crop-controls input[type="range"]{
-    flex: 1;
-    accent-color: var(--safelight);
-  }
-  .crop-buttons{
-    display: flex;
-    gap: 10px;
-    width: 100%;
-  }
-  .crop-buttons button{
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--panel-line);
-    background: #2b2b2f;
-    color: var(--ink);
-    cursor: pointer;
-    font-size: 12.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .crop-buttons button:hover{ border-color: var(--safelight); }
-  .crop-buttons button.primary{
-    background: var(--safelight);
-    border-color: var(--safelight);
-    color: #fff;
-    font-weight: 700;
-  }
-  .crop-buttons button.primary:hover{ background: #ff5a4a; }
+/* range */
+input[type="range"]{
+  -webkit-appearance:none;
+  width:100%;
+  height:3px;
+  border-radius:2px;
+  background:var(--surface3);
+  border:none;
+  padding:0;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:var(--accent);
+  cursor:pointer;
+  transition:transform .1s;
+}
+input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+.range-row{display:flex;align-items:center;gap:8px;}
+.range-val{
+  font-size:11px;
+  font-family:monospace;
+  color:var(--ink2);
+  min-width:32px;
+  text-align:right;
+}
 
-  /* result readout */
-  #readout{
-    background: #2b2b2f;
-    border: 1px solid var(--panel-line);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-family: monospace;
-    font-size: 12px;
-    line-height: 1.7;
-    color: var(--ink);
-  }
-  #readout .k{ color: var(--muted); }
-  #readout .warn{ color: var(--safelight); }
+/* toggle / checkbox */
+.toggle-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:12.5px;
+  color:var(--ink);
+  padding:3px 0;
+}
+.toggle{
+  position:relative;
+  width:36px;height:20px;flex:none;
+}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-track{
+  position:absolute;inset:0;
+  background:var(--surface3);
+  border-radius:10px;
+  cursor:pointer;
+  transition:background var(--trans);
+}
+.toggle input:checked+.toggle-track{background:var(--accent);}
+.toggle-thumb{
+  position:absolute;
+  top:3px;left:3px;
+  width:14px;height:14px;
+  background:#fff;
+  border-radius:50%;
+  transition:transform var(--trans);
+  pointer-events:none;
+}
+.toggle input:checked~.toggle-thumb{transform:translateX(16px);}
 
-  #printBtn{
-    width: 100%;
-    margin-top: 18px;
-    padding: 13px;
-    background: var(--safelight);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background .15s;
-  }
-  #printBtn:hover{ background: #ff5a4a; }
-  #printBtn:disabled{
-    background: var(--safelight-dim);
-    color: #9b8c8a;
-    cursor: not-allowed;
-  }
+/* icon btn */
+.icon-btn{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--ink2);
+  border-radius:var(--r-sm);
+  padding:6px 10px;
+  cursor:pointer;
+  font-size:13px;
+  display:flex;align-items:center;gap:5px;
+  transition:border-color var(--trans),color var(--trans),background var(--trans);
+  white-space:nowrap;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--ink);}
+.icon-btn.danger:hover{border-color:#ff5a4a;color:#ff5a4a;}
+.icon-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.icon-btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
 
-  /* ---------- Preview area ---------- */
-  #main{
-    flex: 1;
-    overflow: auto;
-    height: 100vh;
-  }
-  #ruler{
-    height: 22px;
-    background: repeating-linear-gradient(
-      to right,
-      var(--ruler) 0, var(--ruler) 1px,
-      transparent 1px, transparent calc(1cm - 1px)
-    );
-    background-position: 40px 0;
-    border-bottom: 1px solid var(--panel-line);
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background-color: var(--bg);
-  }
-  #pages{
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
-  }
-  .empty-state{
-    color: var(--muted);
-    font-family: monospace;
-    font-size: 13px;
-    padding: 60px 20px;
-    text-align: center;
-    border: 1px dashed var(--panel-line);
-    border-radius: 8px;
-    max-width: 420px;
-  }
-  .page{
-    background: var(--paper);
-    box-shadow: 0 6px 28px rgba(0,0,0,0.45);
-    position: relative;
-    flex: none;
-  }
-  .page .pagelabel{
-    position: absolute;
-    top: -22px;
-    left: 0;
-    font-family: monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-  .cell{
-    position: absolute;
-    overflow: hidden;
-    background: #fff;
-  }
-  .cell.cutlines{
-    outline: 1px dashed #b9b4ac;
-    outline-offset: -0.5px;
-  }
-  .cell img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .cell img.rot{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: auto;
-    height: auto;
-    transform: translate(-50%,-50%) rotate(90deg);
-  }
+/* theme toggle */
+#themeBtn{
+  background:none;border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:6px 10px;
+  cursor:pointer;color:var(--ink2);font-size:14px;
+  transition:border-color var(--trans);
+}
+#themeBtn:hover{border-color:var(--accent);}
 
-  /* ---------- Print ---------- */
-  @media print{
-    #sidebar, #ruler{ display:none !important; }
-    #main{ overflow: visible; height: auto; }
-    #pages{ padding:0; gap:0; }
-    .page{
-      box-shadow: none;
-      margin: 0;
-      page-break-after: always;
-    }
-    .page .pagelabel{ display:none; }
-  }
+/* ═══════════════════════════════ UPLOAD ZONE ══════════════════════════════ */
+#dropZone{
+  border:1.5px dashed var(--border);
+  border-radius:var(--r);
+  padding:20px 14px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color var(--trans),background var(--trans);
+  color:var(--ink2);
+  font-size:12.5px;
+  line-height:1.6;
+}
+#dropZone:hover,#dropZone.drag{
+  border-color:var(--accent);
+  background:var(--accent-dim);
+  color:var(--ink);
+}
+#dropZone .dz-icon{font-size:24px;margin-bottom:4px;display:block;}
+#dropZone strong{color:var(--ink);}
+#fileInput{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ═══════════════════════════════ PHOTO CARDS ══════════════════════════════ */
+#itemsList{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+
+.item-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  transition:border-color var(--trans);
+}
+.item-card:hover{border-color:var(--border-focus);}
+
+.item-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;
+  cursor:pointer;
+  user-select:none;
+}
+.item-thumb{
+  width:48px;height:48px;flex:none;
+  border-radius:var(--r-sm);
+  overflow:hidden;
+  background:var(--surface3);
+  border:1px solid var(--border);
+}
+.item-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.item-meta{flex:1;min-width:0;}
+.item-name{
+  font-size:11.5px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--ink);
+}
+.item-sub{font-size:10.5px;color:var(--ink2);margin-top:2px;}
+.item-chevron{
+  color:var(--ink3);font-size:11px;
+  transition:transform var(--trans);flex:none;
+}
+.item-card.open .item-chevron{transform:rotate(180deg);}
+
+.item-body{
+  display:none;
+  padding:0 10px 10px;
+  flex-direction:column;gap:8px;
+}
+.item-card.open .item-body{display:flex;}
+
+.item-row{display:flex;gap:6px;align-items:center;}
+.item-row label{font-size:10.5px;color:var(--ink2);white-space:nowrap;min-width:52px;}
+
+.copies-row{display:flex;align-items:center;gap:8px;}
+.copies-btn{
+  width:28px;height:28px;
+  background:var(--surface3);
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  color:var(--ink);
+  font-size:16px;line-height:1;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color var(--trans);
+  flex:none;
+}
+.copies-btn:hover{border-color:var(--accent);}
+.copies-count{
+  min-width:32px;
+  text-align:center;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+}
+
+.item-actions-row{display:flex;gap:6px;margin-top:2px;}
+
+.adj-label{
+  display:flex;justify-content:space-between;
+  font-size:10.5px;color:var(--ink2);
+  margin-bottom:4px;
+}
+
+/* ═══════════════════════════════ READOUT + PRINT BTN ══════════════════════════════ */
+#sidebarFooter{
+  position:absolute;bottom:0;left:0;width:var(--sidebar-w);
+  padding:12px 20px 16px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+}
+#readout{
+  font-family:monospace;font-size:11px;line-height:1.7;
+  color:var(--ink2);
+  margin-bottom:10px;
+}
+#readout .hi{color:var(--ink);}
+#readout .warn{color:var(--accent);}
+#printBtn{
+  width:100%;padding:12px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--r);
+  font-size:13px;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;
+  transition:background var(--trans);
+}
+#printBtn:hover{background:var(--accent-hover);}
+#printBtn:disabled{background:var(--accent-dim);color:var(--ink3);cursor:not-allowed;}
+
+/* ═══════════════════════════════ WORKSPACE ══════════════════════════════ */
+#workspace{
+  flex:1;
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+#rulerCorner{
+  position:absolute;top:0;left:0;
+  width:24px;height:24px;
+  background:var(--ruler-bg);
+  border-right:1px solid var(--ruler-tick);
+  border-bottom:1px solid var(--ruler-tick);
+  z-index:20;
+  flex:none;
+}
+#rulerX{
+  position:absolute;top:0;left:24px;right:0;height:24px;
+  background:var(--ruler-bg);
+  border-bottom:1px solid var(--ruler-tick);
+  overflow:hidden;z-index:15;
+}
+#rulerY{
+  position:absolute;top:24px;left:0;bottom:0;width:24px;
+  background:var(--ruler-bg);
+  border-right:1px solid var(--ruler-tick);
+  overflow:hidden;z-index:15;
+}
+#rulerX canvas,#rulerY canvas{display:block;}
+.no-rulers #rulerCorner,
+.no-rulers #rulerX,
+.no-rulers #rulerY{display:none;}
+.no-rulers #canvas-area{left:0!important;top:0!important;}
+
+#canvas-area{
+  position:absolute;
+  top:24px;left:24px;right:0;bottom:0;
+  overflow:auto;
+  padding:40px;
+}
+.no-rulers #canvas-area{top:0;left:0;}
+
+#pages{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:32px;
+  width:max-content;
+}
+
+.page{
+  background:var(--paper);
+  box-shadow:0 4px 24px var(--shadow);
+  position:relative;
+  flex:none;
+  overflow:hidden;
+}
+.pagelabel{
+  position:absolute;top:-22px;left:0;
+  font-family:monospace;font-size:10px;
+  color:var(--ink3);letter-spacing:.04em;
+  white-space:nowrap;
+}
+.cell{
+  position:absolute;overflow:hidden;background:var(--paper);
+}
+.cell.cutlines{
+  outline:1px dashed var(--cut);
+  outline-offset:-0.5px;
+}
+.cell img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.cell img.rot{
+  position:absolute;top:50%;left:50%;
+  width:auto;height:auto;
+  transform:translate(-50%,-50%) rotate(90deg);
+  pointer-events:none;
+}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  gap:12px;color:var(--ink3);
+  padding:80px 40px;text-align:center;
+}
+.empty-state .es-icon{font-size:40px;opacity:.4;}
+.empty-state p{font-size:13px;line-height:1.6;max-width:280px;}
+
+/* segmented switch (2-way) */
+.switch2{
+  display:flex;
+  background:var(--surface3);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:2px;
+  position:relative;
+}
+.switch2 button{
+  flex:1;
+  background:none;
+  border:none;
+  color:var(--ink2);
+  font-size:11px;
+  font-weight:600;
+  padding:6px 10px;
+  border-radius:5px;
+  cursor:pointer;
+  position:relative;
+  z-index:1;
+  transition:color var(--trans);
+}
+.switch2 button.active{color:#fff;}
+.switch2 .switch2-thumb{
+  position:absolute;
+  top:2px;left:2px;
+  width:calc(50% - 2px);
+  height:calc(100% - 4px);
+  background:var(--accent);
+  border-radius:5px;
+  transition:transform var(--trans);
+  z-index:0;
+}
+.switch2.pos-1 .switch2-thumb{transform:translateX(100%);}
+
+/* floating Display panel */
+#displayFab{
+  position:absolute;
+  top:16px;right:16px;
+  z-index:25;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:50%;
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  font-size:16px;
+  color:var(--ink2);
+  box-shadow:0 2px 10px var(--shadow);
+  transition:border-color var(--trans),color var(--trans);
+}
+#displayFab:hover{border-color:var(--accent);color:var(--ink);}
+#displayFab.active{border-color:var(--accent);color:var(--accent);}
+
+#displayPanel{
+  position:absolute;
+  top:60px;right:16px;
+  z-index:25;
+  width:230px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  box-shadow:0 10px 40px var(--shadow);
+  padding:14px;
+  display:none;
+  flex-direction:column;
+  gap:14px;
+}
+#displayPanel.open{display:flex;}
+#displayPanel .dp-title{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink3);
+}
+#scaleBadge{
+  position:absolute;bottom:16px;right:16px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:8px 12px;
+  display:flex;align-items:center;gap:10px;
+  z-index:20;
+  font-size:12px;color:var(--ink2);
+}
+#scaleBadge input[type="range"]{width:100px;}
+#scaleVal{min-width:36px;text-align:right;font-family:monospace;color:var(--ink);}
+
+/* ═══════════════════════════════ CROP MODAL ══════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.72);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:1000;
+  backdrop-filter:blur(4px);
+}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:22px;
+  display:flex;flex-direction:column;
+  align-items:center;gap:14px;
+  max-width:90vw;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal-title{
+  align-self:flex-start;
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink2);
+}
+.crop-frame{
+  position:relative;overflow:hidden;
+  background:#000;border-radius:var(--r-sm);
+  touch-action:none;cursor:grab;
+  border:1px solid var(--border);
+}
+.crop-frame.dragging{cursor:grabbing;}
+.crop-frame img{
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;
+  user-select:none;-webkit-user-drag:none;
+  pointer-events:none;
+  max-width:none;max-height:none;
+}
+.modal-actions{display:flex;gap:8px;width:100%;}
+.modal-actions button{flex:1;}
+
+/* ═══════════════════════════════ PRINT ══════════════════════════════ */
+@media print{
+  #sidebar,#rulerCorner,#rulerX,#rulerY,#scaleBadge,#displayFab,#displayPanel,.overlay{display:none!important;}
+  #workspace{height:auto;overflow:visible;}
+  #canvas-area{position:static;overflow:visible;padding:0;top:0;left:0;}
+  #pages{gap:0;width:auto;}
+  .page{box-shadow:none;margin:0;page-break-after:always;}
+  .pagelabel{display:none;}
+}
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════ SIDEBAR ══════════════════════════════ -->
 <aside id="sidebar">
-  <h1>Print<span>Layout</span></h1>
-  <p class="sub">Add one or more photos, set a size &amp; number of copies for each — they're packed together onto as few pages as possible.</p>
-
-  <div class="field">
-    <label>Photos</label>
-    <div id="itemsList"></div>
-    <div id="dropZone">
-      <strong>Click to add</strong> or drag images here<br/>
-      (any format, multiple at once)
+  <div id="sidebarHeader">
+    <div class="wordmark">
+      Print<em>Studio</em>
+      <small>Photo Layout Tool</small>
     </div>
-    <input type="file" id="fileInput" accept="image/*" multiple />
+    <button id="themeBtn" title="Toggle theme">☀</button>
   </div>
 
-  <hr class="div"/>
+  <div id="sidebarBody">
 
-  <div class="field">
-    <label>Page size</label>
-    <select id="pageSize">
-      <option value="210x297">A4 (21.0 × 29.7 cm)</option>
-      <option value="297x420">A3 (29.7 × 42.0 cm)</option>
-      <option value="148x210">A5 (14.8 × 21.0 cm)</option>
-      <option value="215.9x279.4">US Letter (21.6 × 27.9 cm)</option>
-      <option value="215.9x355.6">US Legal (21.6 × 35.6 cm)</option>
-      <option value="101.6x152.4">4×6 in photo paper (10.2 × 15.2 cm)</option>
-      <option value="custom">Custom…</option>
-    </select>
-  </div>
-
-  <div class="field" id="pageCustomField" style="display:none;">
-    <div class="row2">
-      <div><label>Width (cm)</label><input type="number" id="pageCustomW" step="0.1" value="21.0" /></div>
-      <div><label>Height (cm)</label><input type="number" id="pageCustomH" step="0.1" value="29.7" /></div>
+    <!-- Photos -->
+    <div class="section">
+      <div class="section-title">Photos</div>
+      <div id="itemsList"></div>
+      <div id="dropZone">
+        <span class="dz-icon">🖼</span>
+        <strong>Click to add photos</strong> or drag here<br/>
+        Any format · Multiple at once
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple/>
     </div>
-  </div>
 
-  <div class="field">
-    <label>Page orientation</label>
-    <select id="pageOrient">
-      <option value="portrait">Portrait</option>
-      <option value="landscape">Landscape</option>
-    </select>
-  </div>
-
-  <hr class="div"/>
-
-  <div class="row2">
-    <div class="field">
-      <label>Gap between photos (mm)</label>
-      <input type="number" id="gap" min="0" step="0.5" value="2" />
+    <!-- Page setup -->
+    <div class="section">
+      <div class="section-title">Page Setup</div>
+      <div class="field">
+        <label>Page size</label>
+        <select id="pageSize">
+          <option value="210x297">A4 — 210 × 297 mm</option>
+          <option value="297x420">A3 — 297 × 420 mm</option>
+          <option value="148x210">A5 — 148 × 210 mm</option>
+          <option value="215.9x279.4">US Letter — 215.9 × 279.4 mm</option>
+          <option value="215.9x355.6">US Legal — 215.9 × 355.6 mm</option>
+          <option value="101.6x152.4">4×6 in photo paper</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div class="field" id="pageCustomField" style="display:none;">
+        <div class="row2">
+          <div><label>Width (cm)</label><input type="number" class="input" id="pageCustomW" step="0.1" value="21.0"/></div>
+          <div><label>Height (cm)</label><input type="number" class="input" id="pageCustomH" step="0.1" value="29.7"/></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Orientation</label>
+        <select id="pageOrient">
+          <option value="portrait">Portrait</option>
+          <option value="landscape">Landscape</option>
+        </select>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Margin (mm)</label>
+          <input type="number" class="input" id="margin" min="0" step="0.5" value="5"/>
+        </div>
+        <div class="field">
+          <label>Gap (mm)</label>
+          <input type="number" class="input" id="gap" min="0" step="0.5" value="2"/>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label>Page margin (mm)</label>
-      <input type="number" id="margin" min="0" step="0.5" value="5" />
+
+    <!-- Algorithm -->
+    <div class="section">
+      <div class="section-title">Packing Algorithm</div>
+      <div class="field">
+        <select id="algo">
+          <option value="maxrects-baf">MaxRects · Best Area Fit ✦ Recommended</option>
+          <option value="maxrects-bssf">MaxRects · Best Short Side Fit</option>
+          <option value="maxrects-blsf">MaxRects · Best Long Side Fit</option>
+          <option value="guillotine">Guillotine · Short Axis Split</option>
+          <option value="shelf">Shelf · Next Fit Decreasing Height</option>
+          <option value="rowfill">Row Fill · Top-to-Bottom Exhaustive</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="toggle-row">
+          <span>Rotate photos to optimise fit</span>
+          <label class="toggle">
+            <input type="checkbox" id="autoRotate" checked/>
+            <span class="toggle-track"></span>
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
     </div>
+
+    <!-- Readout buffer -->
+    <div class="section" style="padding-bottom:80px;">
+      <div class="section-title">Summary</div>
+      <div id="readout"></div>
+    </div>
+
+  </div><!-- /sidebarBody -->
+
+  <div id="sidebarFooter">
+    <button id="printBtn" disabled>Print / Save PDF</button>
   </div>
-
-  <label class="checkbox-row">
-    <input type="checkbox" id="autoRotate" checked />
-    Optimize layout (rotate photos to avoid wasted paper)
-  </label>
-  <label class="checkbox-row">
-    <input type="checkbox" id="cutLines" checked />
-    Show cut guide lines
-  </label>
-
-  <hr class="div"/>
-
-  <div id="readout"></div>
-
-  <button id="printBtn">Print</button>
 </aside>
 
-<main id="main">
-  <div id="ruler"></div>
-  <div id="pages"></div>
-</main>
+<!-- ═══════════════════════════════ WORKSPACE ══════════════════════════════ -->
+<div id="workspace">
+  <div id="rulerCorner"></div>
+  <canvas id="rulerX"></canvas>
+  <canvas id="rulerY"></canvas>
+  <div id="canvas-area">
+    <div id="pages"></div>
+  </div>
 
-<style id="pageStyleTag"></style>
+  <button id="displayFab" title="Display options">⚙</button>
+  <div id="displayPanel">
+    <div>
+      <div class="dp-title" style="margin-bottom:8px;">Cut guide lines</div>
+      <div class="toggle-row">
+        <span>Show cut marks</span>
+        <label class="toggle">
+          <input type="checkbox" id="cutLines"/>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+    <div>
+      <div class="dp-title" style="margin-bottom:8px;">Rulers</div>
+      <div class="toggle-row" style="margin-bottom:10px;">
+        <span>Show rulers</span>
+        <label class="toggle">
+          <input type="checkbox" id="showRulers" checked/>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="switch2 pos-0" id="rulerUnitSwitch">
+        <button type="button" data-val="cm" class="active">cm</button>
+        <button type="button" data-val="in">inch</button>
+        <div class="switch2-thumb"></div>
+      </div>
+    </div>
+  </div>
 
-<div class="crop-overlay" id="cropOverlay">
-  <div class="crop-modal">
-    <h2>Crop to fit the selected photo size</h2>
+  <div id="scaleBadge">
+    <span>Zoom</span>
+    <input type="range" id="scaleSlider" min="20" max="200" value="100"/>
+    <span id="scaleVal">100%</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CROP MODAL ══════════════════════════════ -->
+<div class="overlay" id="cropOverlay">
+  <div class="modal">
+    <div class="modal-title">Crop — drag to reposition · scroll to zoom</div>
     <div class="crop-frame" id="cropFrame">
-      <img id="cropImg" alt="" />
+      <img id="cropImg" alt=""/>
     </div>
-    <div class="crop-controls">
-      <span>Zoom</span>
-      <input type="range" id="zoomSlider" min="100" max="400" value="100" />
+    <div class="field" style="width:100%">
+      <div class="adj-label"><span>Zoom</span><span id="cropZoomVal">100%</span></div>
+      <input type="range" id="zoomSlider" min="100" max="400" value="100"/>
     </div>
-    <div class="crop-buttons">
-      <button id="cropResetBtn">Reset</button>
-      <button id="cropCancelBtn">Cancel</button>
-      <button id="cropApplyBtn" class="primary">Apply</button>
+    <div class="modal-actions">
+      <button class="icon-btn" id="cropResetBtn">↺ Reset</button>
+      <button class="icon-btn" id="cropCancelBtn">Cancel</button>
+      <button class="icon-btn primary" id="cropApplyBtn">✓ Apply</button>
     </div>
   </div>
 </div>
 
+<style id="pageStyleTag"></style>
+
 <script>
-  // ---------- Element refs ----------
-  const fileInput = document.getElementById('fileInput');
-  const dropZone = document.getElementById('dropZone');
-  const itemsList = document.getElementById('itemsList');
+// ═══════════════════════════════ DOM REFS ══════════════════════════════
+const fileInput     = document.getElementById('fileInput');
+const dropZone      = document.getElementById('dropZone');
+const itemsList     = document.getElementById('itemsList');
+const pageSizeSel   = document.getElementById('pageSize');
+const pageCustomField= document.getElementById('pageCustomField');
+const pageCustomW   = document.getElementById('pageCustomW');
+const pageCustomH   = document.getElementById('pageCustomH');
+const pageOrient    = document.getElementById('pageOrient');
+const marginInput   = document.getElementById('margin');
+const gapInput      = document.getElementById('gap');
+const algoSel       = document.getElementById('algo');
+const autoRotate    = document.getElementById('autoRotate');
+const cutLines      = document.getElementById('cutLines');
+const showRulers    = document.getElementById('showRulers');
+const displayFab    = document.getElementById('displayFab');
+const displayPanel  = document.getElementById('displayPanel');
+const rulerUnitSwitch = document.getElementById('rulerUnitSwitch');
+const scaleSlider   = document.getElementById('scaleSlider');
+const scaleVal      = document.getElementById('scaleVal');
+const readout       = document.getElementById('readout');
+const pagesEl       = document.getElementById('pages');
+const printBtn      = document.getElementById('printBtn');
+const pageStyleTag  = document.getElementById('pageStyleTag');
+const themeBtn      = document.getElementById('themeBtn');
+const cropOverlay   = document.getElementById('cropOverlay');
+const cropFrame     = document.getElementById('cropFrame');
+const cropImgEl     = document.getElementById('cropImg');
+const zoomSlider    = document.getElementById('zoomSlider');
+const cropZoomVal   = document.getElementById('cropZoomVal');
+const cropResetBtn  = document.getElementById('cropResetBtn');
+const cropCancelBtn = document.getElementById('cropCancelBtn');
+const cropApplyBtn  = document.getElementById('cropApplyBtn');
+const canvasArea    = document.getElementById('canvas-area');
+const workspace     = document.getElementById('workspace');
+const rulerXCanvas  = document.getElementById('rulerX');
+const rulerYCanvas  = document.getElementById('rulerY');
 
-  const pageSizeSel = document.getElementById('pageSize');
-  const pageCustomField = document.getElementById('pageCustomField');
-  const pageCustomW = document.getElementById('pageCustomW');
-  const pageCustomH = document.getElementById('pageCustomH');
-  const pageOrient = document.getElementById('pageOrient');
+const PHOTO_SIZES=[
+  {v:'3.5x4.5',   l:'Passport — 3.5 × 4.5 cm'},
+  {v:'5.08x5.08', l:'US Passport — 5.08 × 5.08 cm'},
+  {v:'2x2.5',     l:'Stamp — 2.0 × 2.5 cm'},
+  {v:'10.16x15.24',l:'4×6 in — 10.16 × 15.24 cm'},
+  {v:'custom',    l:'Custom…'},
+];
 
-  const gapInput = document.getElementById('gap');
-  const marginInput = document.getElementById('margin');
-  const autoRotate = document.getElementById('autoRotate');
-  const cutLines = document.getElementById('cutLines');
+// ═══════════════════════════════ STATE ══════════════════════════════
+let items=[], nextId=1;
+let currentCropItem=null, lastCrop=null;
+let dragging=false, dragStartX=0, dragStartY=0, dragOrigX=0, dragOrigY=0;
+let scale=1;
+let rulerUnit='cm';
 
-  const readout = document.getElementById('readout');
-  const pagesEl = document.getElementById('pages');
-  const printBtn = document.getElementById('printBtn');
-  const pageStyleTag = document.getElementById('pageStyleTag');
+// ═══════════════════════════════ THEME ══════════════════════════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  themeBtn.textContent = t==='dark' ? '☀' : '🌙';
+}
+themeBtn.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  setTheme(cur==='dark'?'light':'dark');
+  drawRulers();
+});
 
-  // Crop modal elements
-  const cropOverlay = document.getElementById('cropOverlay');
-  const cropFrame = document.getElementById('cropFrame');
-  const cropImgEl = document.getElementById('cropImg');
-  const zoomSlider = document.getElementById('zoomSlider');
-  const cropResetBtn = document.getElementById('cropResetBtn');
-  const cropCancelBtn = document.getElementById('cropCancelBtn');
-  const cropApplyBtn = document.getElementById('cropApplyBtn');
+// ═══════════════════════════════ SCALE ══════════════════════════════
+scaleSlider.addEventListener('input',()=>{
+  scale=scaleSlider.value/100;
+  scaleVal.textContent=scaleSlider.value+'%';
+  pagesEl.style.transform=`scale(${scale})`;
+  pagesEl.style.transformOrigin='top left';
+  const [pw,ph]=getPageSizeMm();
+  const margin=parseFloat(marginInput.value)||0;
+  const mmPerPx=3.7795;
+  canvasArea.style.minWidth=(pw*mmPerPx*scale+80)+'px';
+  canvasArea.style.minHeight=(ph*mmPerPx*scale+80)+'px';
+  drawRulers();
+});
 
-  const PHOTO_SIZES = [
-    { value: '3.5x4.5', label: 'Passport (3.5 × 4.5 cm)' },
-    { value: '5.08x5.08', label: 'US Passport / 2×2 in (5.08 × 5.08 cm)' },
-    { value: '2x2.5', label: 'Stamp size (2.0 × 2.5 cm)' },
-    { value: '10.16x15.24', label: '4×6 in (10.16 × 15.24 cm)' },
-    { value: 'custom', label: 'Custom…' }
-  ];
+// ═══════════════════════════════ RULERS ══════════════════════════════
+function getPageSizeMm(){
+  let wMm,hMm;
+  if(pageSizeSel.value==='custom'){
+    wMm=(parseFloat(pageCustomW.value)||21)*10;
+    hMm=(parseFloat(pageCustomH.value)||29.7)*10;
+  } else {
+    [wMm,hMm]=pageSizeSel.value.split('x').map(parseFloat);
+  }
+  if(pageOrient.value==='landscape'&&wMm<hMm)[wMm,hMm]=[hMm,wMm];
+  else if(pageOrient.value==='portrait'&&wMm>hMm)[wMm,hMm]=[hMm,wMm];
+  return [wMm,hMm];
+}
 
-  let items = [];      // { id, rawImg, fileName, sizeKey, customW, customH, copies, crop, croppedDataUrl }
-  let nextId = 1;
-  let currentCropItem = null;
-  let lastCrop = null;
-  let dragging = false, dragStartX = 0, dragStartY = 0, dragOrigX = 0, dragOrigY = 0;
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
-  // ---------- Page size ----------
-  function getPageSizeMm(){
-    let wMm, hMm;
-    if (pageSizeSel.value === 'custom'){
-      wMm = (parseFloat(pageCustomW.value) || 21) * 10;
-      hMm = (parseFloat(pageCustomH.value) || 29.7) * 10;
-    } else {
-      [wMm, hMm] = pageSizeSel.value.split('x').map(parseFloat);
+function drawRulers(){
+  if(!showRulers.checked) return;
+  const useInch=(rulerUnit==='in');
+  const MM_PER_UNIT=useInch?25.4:10;
+  const PX_PER_MM=3.7795;
+  const RULER_H=24;
+
+  // X ruler
+  const xW=rulerXCanvas.parentElement.clientWidth;
+  rulerXCanvas.style.position='absolute';
+  rulerXCanvas.style.top='0';
+  rulerXCanvas.style.left='24px';
+  rulerXCanvas.width=Math.max(xW,10);
+  rulerXCanvas.height=RULER_H;
+  const cx=rulerXCanvas.getContext('2d');
+  cx.clearRect(0,0,rulerXCanvas.width,RULER_H);
+  cx.fillStyle=cssVar('--ruler-bg');
+  cx.fillRect(0,0,rulerXCanvas.width,RULER_H);
+
+  const scrollX=canvasArea.scrollLeft;
+  const offsetPx=40*scale; // padding
+  const pixPerUnit=MM_PER_UNIT*PX_PER_MM*scale;
+  const totalUnits=Math.ceil((rulerXCanvas.width+scrollX)/pixPerUnit)+2;
+
+  cx.strokeStyle=cssVar('--ruler-tick');
+  cx.fillStyle=cssVar('--ruler-label');
+  cx.font=`9px monospace`;
+  cx.textAlign='center';
+  cx.lineWidth=1;
+
+  for(let u=0;u<=totalUnits;u++){
+    const px=u*pixPerUnit+offsetPx-scrollX;
+    if(px<0||px>rulerXCanvas.width) continue;
+    cx.beginPath();cx.moveTo(px,RULER_H);cx.lineTo(px,RULER_H-8);cx.stroke();
+    if(u%2===0||pixPerUnit>40){
+      cx.fillText(u,px,RULER_H-10);
     }
-    if (pageOrient.value === 'landscape' && wMm < hMm){ [wMm, hMm] = [hMm, wMm]; }
-    else if (pageOrient.value === 'portrait' && wMm > hMm){ [wMm, hMm] = [hMm, wMm]; }
-    return { w: wMm, h: hMm };
-  }
-
-  function itemPhotoSizeMm(item){
-    if (item.sizeKey === 'custom'){
-      return { w: (parseFloat(item.customW)||3.5) * 10, h: (parseFloat(item.customH)||4.5) * 10 };
+    // halves
+    if(pixPerUnit>20){
+      const hpx=px+pixPerUnit/2;
+      if(hpx>0&&hpx<rulerXCanvas.width){
+        cx.beginPath();cx.moveTo(hpx,RULER_H);cx.lineTo(hpx,RULER_H-4);cx.stroke();
+      }
     }
-    const [wCm, hCm] = item.sizeKey.split('x').map(parseFloat);
-    return { w: wCm * 10, h: hCm * 10 };
   }
 
-  function getItemRatio(item){
-    const sz = itemPhotoSizeMm(item);
-    return sz.w / sz.h;
-  }
+  // Y ruler
+  const yH=rulerYCanvas.parentElement.clientHeight;
+  rulerYCanvas.style.position='absolute';
+  rulerYCanvas.style.top='24px';
+  rulerYCanvas.style.left='0';
+  rulerYCanvas.width=RULER_H;
+  rulerYCanvas.height=Math.max(yH,10);
+  const cy=rulerYCanvas.getContext('2d');
+  cy.clearRect(0,0,RULER_H,rulerYCanvas.height);
+  cy.fillStyle=cssVar('--ruler-bg');
+  cy.fillRect(0,0,RULER_H,rulerYCanvas.height);
 
-  // ---------- Cropping ----------
-  function computeFrameSize(ratio){
-    const MAX = 320;
-    let w, h;
-    if (ratio >= 1){ w = MAX; h = MAX / ratio; }
-    else { h = MAX; w = MAX * ratio; }
-    return { w: Math.round(w), h: Math.round(h) };
-  }
+  const scrollY=canvasArea.scrollTop;
+  const totalUnitsY=Math.ceil((rulerYCanvas.height+scrollY)/pixPerUnit)+2;
 
-  function initCropForItem(item){
-    const frame = computeFrameSize(getItemRatio(item));
-    const crop = item.crop;
-    crop.frameW = frame.w;
-    crop.frameH = frame.h;
-    crop.baseScale = Math.max(crop.frameW / item.rawImg.naturalWidth, crop.frameH / item.rawImg.naturalHeight);
-    crop.zoom = 1;
-    centerCrop(item);
-  }
+  cy.strokeStyle=cssVar('--ruler-tick');
+  cy.fillStyle=cssVar('--ruler-label');
+  cy.font=`9px monospace`;
+  cy.textAlign='right';
+  cy.lineWidth=1;
 
-  function centerCrop(item){
-    const crop = item.crop, img = item.rawImg;
-    const dispW = img.naturalWidth * crop.baseScale * crop.zoom;
-    const dispH = img.naturalHeight * crop.baseScale * crop.zoom;
-    crop.offsetX = (crop.frameW - dispW) / 2;
-    crop.offsetY = (crop.frameH - dispH) / 2;
-  }
-
-  function clampOffsets(item){
-    const crop = item.crop, img = item.rawImg;
-    const dispW = img.naturalWidth * crop.baseScale * crop.zoom;
-    const dispH = img.naturalHeight * crop.baseScale * crop.zoom;
-    const minX = crop.frameW - dispW, minY = crop.frameH - dispH;
-    crop.offsetX = Math.min(0, Math.max(minX, crop.offsetX));
-    crop.offsetY = Math.min(0, Math.max(minY, crop.offsetY));
-  }
-
-  function generateCroppedDataUrl(item){
-    const sz = itemPhotoSizeMm(item);
-    const DPI = 300;
-    let outW = Math.round(sz.w / 25.4 * DPI);
-    let outH = Math.round(sz.h / 25.4 * DPI);
-    const MAXDIM = 1400;
-    if (outW > MAXDIM || outH > MAXDIM){
-      const s = MAXDIM / Math.max(outW, outH);
-      outW = Math.round(outW * s);
-      outH = Math.round(outH * s);
+  for(let u=0;u<=totalUnitsY;u++){
+    const py=u*pixPerUnit+offsetPx-scrollY;
+    if(py<0||py>rulerYCanvas.height) continue;
+    cy.beginPath();cy.moveTo(RULER_H,py);cy.lineTo(RULER_H-8,py);cy.stroke();
+    if(u%2===0||pixPerUnit>40){
+      cy.save();
+      cy.translate(RULER_H-10,py);
+      cy.rotate(-Math.PI/2);
+      cy.textAlign='center';
+      cy.fillText(u,0,0);
+      cy.restore();
     }
-    const crop = item.crop;
-    const effScale = crop.baseScale * crop.zoom;
-    const sx = -crop.offsetX / effScale;
-    const sy = -crop.offsetY / effScale;
-    const sw = crop.frameW / effScale;
-    const sh = crop.frameH / effScale;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = outW;
-    canvas.height = outH;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(item.rawImg, sx, sy, sw, sh, 0, 0, outW, outH);
-    return canvas.toDataURL('image/jpeg', 0.92);
+    if(pixPerUnit>20){
+      const hpy=py+pixPerUnit/2;
+      if(hpy>0&&hpy<rulerYCanvas.height){
+        cy.beginPath();cy.moveTo(RULER_H,hpy);cy.lineTo(RULER_H-4,hpy);cy.stroke();
+      }
+    }
   }
+}
 
-  function applyCropForItem(item){
-    item.croppedDataUrl = generateCroppedDataUrl(item);
+canvasArea.addEventListener('scroll',drawRulers);
+showRulers.addEventListener('change',()=>{
+  workspace.classList.toggle('no-rulers',!showRulers.checked);
+  canvasArea.style.top=showRulers.checked?'24px':'0';
+  canvasArea.style.left=showRulers.checked?'24px':'0';
+  drawRulers();
+});
+window.addEventListener('resize',drawRulers);
+
+// Display floating panel
+displayFab.addEventListener('click',e=>{
+  e.stopPropagation();
+  displayPanel.classList.toggle('open');
+  displayFab.classList.toggle('active',displayPanel.classList.contains('open'));
+});
+document.addEventListener('click',e=>{
+  if(!displayPanel.contains(e.target)&&e.target!==displayFab&&displayPanel.classList.contains('open')){
+    displayPanel.classList.remove('open');
+    displayFab.classList.remove('active');
   }
+});
 
-  function updateCropTransform(){
-    const item = currentCropItem;
-    const crop = item.crop, img = item.rawImg;
-    cropImgEl.style.width = (img.naturalWidth * crop.baseScale) + 'px';
-    cropImgEl.style.height = (img.naturalHeight * crop.baseScale) + 'px';
-    cropImgEl.style.transform = `translate(${crop.offsetX}px, ${crop.offsetY}px) scale(${crop.zoom})`;
+// Ruler unit segmented switch
+rulerUnitSwitch.addEventListener('click',e=>{
+  const btn=e.target.closest('button');
+  if(!btn) return;
+  const val=btn.dataset.val;
+  rulerUnit=val;
+  rulerUnitSwitch.classList.toggle('pos-1',val==='in');
+  rulerUnitSwitch.classList.toggle('pos-0',val==='cm');
+  rulerUnitSwitch.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.val===val));
+  drawRulers();
+});
+
+// ═══════════════════════════════ PHOTO SIZE HELPERS ══════════════════════════════
+function itemPhotoSizeMm(item){
+  if(item.sizeKey==='custom'){
+    return{w:(parseFloat(item.customW)||3.5)*10, h:(parseFloat(item.customH)||4.5)*10};
   }
+  const[wCm,hCm]=item.sizeKey.split('x').map(parseFloat);
+  return{w:wCm*10, h:hCm*10};
+}
 
-  function openCropModal(item){
-    currentCropItem = item;
-    lastCrop = { ...item.crop };
-    cropImgEl.src = item.rawImg.src;
-    cropFrame.style.width = item.crop.frameW + 'px';
-    cropFrame.style.height = item.crop.frameH + 'px';
-    zoomSlider.value = Math.round(item.crop.zoom * 100);
-    updateCropTransform();
-    cropOverlay.style.display = 'flex';
+function sizeLabel(item){
+  const sz=itemPhotoSizeMm(item);
+  return `${(sz.w/10).toFixed(1)}×${(sz.h/10).toFixed(1)} cm · ×${item.copies}`;
+}
+
+// ═══════════════════════════════ CROP ══════════════════════════════
+function getItemRatio(item){const sz=itemPhotoSizeMm(item);return sz.w/sz.h;}
+
+function computeFrameSize(ratio){
+  const MAX=300;
+  return ratio>=1?{w:MAX,h:Math.round(MAX/ratio)}:{w:Math.round(MAX*ratio),h:MAX};
+}
+
+function initCropForItem(item){
+  const frame=computeFrameSize(getItemRatio(item));
+  const crop=item.crop;
+  crop.frameW=frame.w; crop.frameH=frame.h;
+  crop.baseScale=Math.max(crop.frameW/item.rawImg.naturalWidth, crop.frameH/item.rawImg.naturalHeight);
+  crop.zoom=1;
+  centerCrop(item);
+}
+
+function centerCrop(item){
+  const {crop,rawImg}=item;
+  const dW=rawImg.naturalWidth*crop.baseScale*crop.zoom;
+  const dH=rawImg.naturalHeight*crop.baseScale*crop.zoom;
+  crop.offsetX=(crop.frameW-dW)/2;
+  crop.offsetY=(crop.frameH-dH)/2;
+}
+
+function clampOffsets(item){
+  const {crop,rawImg}=item;
+  const dW=rawImg.naturalWidth*crop.baseScale*crop.zoom;
+  const dH=rawImg.naturalHeight*crop.baseScale*crop.zoom;
+  crop.offsetX=Math.min(0,Math.max(crop.frameW-dW,crop.offsetX));
+  crop.offsetY=Math.min(0,Math.max(crop.frameH-dH,crop.offsetY));
+}
+
+function generateCroppedDataUrl(item){
+  const sz=itemPhotoSizeMm(item);
+  const DPI=300,MAXDIM=1400;
+  let outW=Math.round(sz.w/25.4*DPI), outH=Math.round(sz.h/25.4*DPI);
+  if(outW>MAXDIM||outH>MAXDIM){
+    const s=MAXDIM/Math.max(outW,outH);
+    outW=Math.round(outW*s); outH=Math.round(outH*s);
   }
+  const {crop}=item;
+  const eff=crop.baseScale*crop.zoom;
+  const canvas=document.createElement('canvas');
+  canvas.width=outW; canvas.height=outH;
+  const ctx=canvas.getContext('2d');
+  ctx.filter=`brightness(${item.brightness}%) contrast(${item.contrast}%)`;
+  ctx.drawImage(item.rawImg,-crop.offsetX/eff,-crop.offsetY/eff,crop.frameW/eff,crop.frameH/eff,0,0,outW,outH);
+  return canvas.toDataURL('image/jpeg',.92);
+}
 
-  function closeCropModal(){
-    cropOverlay.style.display = 'none';
-    currentCropItem = null;
-  }
+function applyCropForItem(item){
+  item.croppedDataUrl=generateCroppedDataUrl(item);
+}
 
-  cropCancelBtn.addEventListener('click', () => {
-    if (currentCropItem && lastCrop) Object.assign(currentCropItem.crop, lastCrop);
-    closeCropModal();
-  });
+function updateCropTransform(){
+  const {crop,rawImg}=currentCropItem;
+  cropImgEl.style.width=(rawImg.naturalWidth*crop.baseScale)+'px';
+  cropImgEl.style.height=(rawImg.naturalHeight*crop.baseScale)+'px';
+  cropImgEl.style.transform=`translate(${crop.offsetX}px,${crop.offsetY}px) scale(${crop.zoom})`;
+}
 
-  cropResetBtn.addEventListener('click', () => {
-    if (!currentCropItem) return;
-    currentCropItem.crop.zoom = 1;
-    centerCrop(currentCropItem);
-    zoomSlider.value = 100;
-    updateCropTransform();
-  });
+function openCropModal(item){
+  currentCropItem=item;
+  lastCrop={...item.crop};
+  cropImgEl.src=item.rawImg.src;
+  cropFrame.style.width=item.crop.frameW+'px';
+  cropFrame.style.height=item.crop.frameH+'px';
+  zoomSlider.value=Math.round(item.crop.zoom*100);
+  cropZoomVal.textContent=Math.round(item.crop.zoom*100)+'%';
+  updateCropTransform();
+  cropOverlay.style.display='flex';
+}
 
-  cropApplyBtn.addEventListener('click', () => {
-    if (!currentCropItem) return;
-    applyCropForItem(currentCropItem);
-    renderItemsList();
-    render();
-    closeCropModal();
-  });
+cropCancelBtn.addEventListener('click',()=>{
+  if(currentCropItem&&lastCrop) Object.assign(currentCropItem.crop,lastCrop);
+  cropOverlay.style.display='none'; currentCropItem=null;
+});
+cropResetBtn.addEventListener('click',()=>{
+  if(!currentCropItem) return;
+  currentCropItem.crop.zoom=1;
+  centerCrop(currentCropItem);
+  zoomSlider.value=100; cropZoomVal.textContent='100%';
+  updateCropTransform();
+});
+cropApplyBtn.addEventListener('click',()=>{
+  if(!currentCropItem) return;
+  applyCropForItem(currentCropItem);
+  renderItemsList(); render();
+  cropOverlay.style.display='none'; currentCropItem=null;
+});
+zoomSlider.addEventListener('input',()=>{
+  if(!currentCropItem) return;
+  const crop=currentCropItem.crop;
+  const nz=zoomSlider.value/100;
+  const effOld=crop.baseScale*crop.zoom;
+  const cx=(crop.frameW/2-crop.offsetX)/effOld;
+  const cy=(crop.frameH/2-crop.offsetY)/effOld;
+  crop.zoom=nz;
+  const effNew=crop.baseScale*nz;
+  crop.offsetX=crop.frameW/2-cx*effNew;
+  crop.offsetY=crop.frameH/2-cy*effNew;
+  clampOffsets(currentCropItem);
+  cropZoomVal.textContent=Math.round(nz*100)+'%';
+  updateCropTransform();
+});
+// scroll to zoom inside crop
+cropFrame.addEventListener('wheel',e=>{
+  if(!currentCropItem) return;
+  e.preventDefault();
+  const nv=Math.min(400,Math.max(100,parseInt(zoomSlider.value)-(e.deltaY>0?5:-5)));
+  zoomSlider.value=nv; zoomSlider.dispatchEvent(new Event('input'));
+},{passive:false});
+cropFrame.addEventListener('pointerdown',e=>{
+  if(!currentCropItem) return;
+  dragging=true; cropFrame.classList.add('dragging');
+  cropFrame.setPointerCapture(e.pointerId);
+  dragStartX=e.clientX; dragStartY=e.clientY;
+  dragOrigX=currentCropItem.crop.offsetX; dragOrigY=currentCropItem.crop.offsetY;
+});
+cropFrame.addEventListener('pointermove',e=>{
+  if(!dragging||!currentCropItem) return;
+  currentCropItem.crop.offsetX=dragOrigX+(e.clientX-dragStartX);
+  currentCropItem.crop.offsetY=dragOrigY+(e.clientY-dragStartY);
+  clampOffsets(currentCropItem);
+  updateCropTransform();
+});
+['pointerup','pointercancel'].forEach(ev=>cropFrame.addEventListener(ev,()=>{
+  dragging=false; cropFrame.classList.remove('dragging');
+}));
 
-  zoomSlider.addEventListener('input', () => {
-    if (!currentCropItem) return;
-    const crop = currentCropItem.crop;
-    const newZoom = zoomSlider.value / 100;
-    const effOld = crop.baseScale * crop.zoom;
-    const centerImgX = (crop.frameW / 2 - crop.offsetX) / effOld;
-    const centerImgY = (crop.frameH / 2 - crop.offsetY) / effOld;
-    crop.zoom = newZoom;
-    const effNew = crop.baseScale * crop.zoom;
-    crop.offsetX = crop.frameW / 2 - centerImgX * effNew;
-    crop.offsetY = crop.frameH / 2 - centerImgY * effNew;
-    clampOffsets(currentCropItem);
-    updateCropTransform();
-  });
+// ═══════════════════════════════ FILE HANDLING ══════════════════════════════
+dropZone.addEventListener('click',()=>fileInput.click());
+['dragover','dragenter'].forEach(ev=>dropZone.addEventListener(ev,e=>{
+  e.preventDefault(); dropZone.classList.add('drag');
+}));
+['dragleave','dragend','drop'].forEach(ev=>dropZone.addEventListener(ev,e=>{
+  e.preventDefault(); dropZone.classList.remove('drag');
+}));
+dropZone.addEventListener('drop',e=>{if(e.dataTransfer.files.length) addFiles(e.dataTransfer.files);});
+fileInput.addEventListener('change',e=>{if(e.target.files.length) addFiles(e.target.files); fileInput.value='';});
 
-  cropFrame.addEventListener('pointerdown', e => {
-    if (!currentCropItem) return;
-    dragging = true;
-    cropFrame.classList.add('dragging');
-    cropFrame.setPointerCapture(e.pointerId);
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragOrigX = currentCropItem.crop.offsetX;
-    dragOrigY = currentCropItem.crop.offsetY;
-  });
-  cropFrame.addEventListener('pointermove', e => {
-    if (!dragging || !currentCropItem) return;
-    currentCropItem.crop.offsetX = dragOrigX + (e.clientX - dragStartX);
-    currentCropItem.crop.offsetY = dragOrigY + (e.clientY - dragStartY);
-    clampOffsets(currentCropItem);
-    updateCropTransform();
-  });
-  ['pointerup','pointercancel','pointerleave'].forEach(ev => cropFrame.addEventListener(ev, () => {
-    dragging = false;
-    cropFrame.classList.remove('dragging');
-  }));
-
-  // ---------- File handling ----------
-  dropZone.addEventListener('click', () => fileInput.click());
-  ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e => {
-    e.preventDefault(); dropZone.classList.add('drag');
-  }));
-  ['dragleave','dragend','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
-    e.preventDefault(); dropZone.classList.remove('drag');
-  }));
-  dropZone.addEventListener('drop', e => {
-    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-  });
-  fileInput.addEventListener('change', e => {
-    if (e.target.files.length) addFiles(e.target.files);
-    fileInput.value = '';
-  });
-
-  function addFiles(fileList){
-    Array.from(fileList).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const item = {
-            id: nextId++,
-            rawImg: img,
-            fileName: file.name,
-            sizeKey: '3.5x4.5',
-            customW: 3.5,
-            customH: 4.5,
-            copies: 1,
-            crop: { zoom: 1, offsetX: 0, offsetY: 0, frameW: 300, frameH: 300, baseScale: 1 },
-            croppedDataUrl: null
-          };
-          initCropForItem(item);
-          applyCropForItem(item);
-          items.push(item);
-          renderItemsList();
-          render();
+function addFiles(fileList){
+  Array.from(fileList).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const item={
+          id:nextId++, rawImg:img, fileName:file.name,
+          sizeKey:'3.5x4.5', customW:3.5, customH:4.5, copies:1,
+          brightness:100, contrast:100,
+          crop:{zoom:1,offsetX:0,offsetY:0,frameW:300,frameH:300,baseScale:1},
+          croppedDataUrl:null, open:false
         };
-        img.src = e.target.result;
+        initCropForItem(item);
+        applyCropForItem(item);
+        items.push(item);
+        renderItemsList(); render();
       };
-      reader.readAsDataURL(file);
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════ ITEMS LIST UI ══════════════════════════════
+function renderItemsList(){
+  itemsList.innerHTML='';
+  items.forEach(item=>{
+    const card=document.createElement('div');
+    card.className='item-card'+(item.open?' open':'');
+    card.dataset.id=item.id;
+
+    // header
+    const hdr=document.createElement('div');
+    hdr.className='item-header';
+
+    const thumb=document.createElement('div');
+    thumb.className='item-thumb';
+    const ti=document.createElement('img');
+    ti.src=item.croppedDataUrl||'';
+    thumb.appendChild(ti);
+
+    const meta=document.createElement('div');
+    meta.className='item-meta';
+    const nm=document.createElement('div');
+    nm.className='item-name';
+    nm.textContent=item.fileName;
+    const sub=document.createElement('div');
+    sub.className='item-sub';
+    sub.textContent=sizeLabel(item);
+    meta.appendChild(nm); meta.appendChild(sub);
+
+    const chev=document.createElement('span');
+    chev.className='item-chevron';
+    chev.textContent='▾';
+
+    hdr.appendChild(thumb); hdr.appendChild(meta); hdr.appendChild(chev);
+    card.appendChild(hdr);
+
+    // body
+    const body=document.createElement('div');
+    body.className='item-body';
+
+    // size select
+    const sizeSel=document.createElement('select');
+    PHOTO_SIZES.forEach(opt=>{
+      const o=document.createElement('option');
+      o.value=opt.v; o.textContent=opt.l;
+      if(opt.v===item.sizeKey) o.selected=true;
+      sizeSel.appendChild(o);
     });
+    sizeSel.className='item-size';
+    body.appendChild(sizeSel);
+
+    // custom size
+    const customDiv=document.createElement('div');
+    customDiv.className='row2';
+    customDiv.style.display=item.sizeKey==='custom'?'flex':'none';
+    const cwrap=d=>{const w=document.createElement('div'); w.appendChild(d); return w;};
+    const cwIn=document.createElement('input');
+    cwIn.type='number'; cwIn.step='.1'; cwIn.className='input item-customW';
+    cwIn.value=item.customW; cwIn.placeholder='W cm';
+    const chIn=document.createElement('input');
+    chIn.type='number'; chIn.step='.1'; chIn.className='input item-customH';
+    chIn.value=item.customH; chIn.placeholder='H cm';
+    customDiv.appendChild(cwrap(cwIn)); customDiv.appendChild(cwrap(chIn));
+    body.appendChild(customDiv);
+
+    // copies
+    const copiesRow=document.createElement('div');
+    copiesRow.className='copies-row';
+    const decBtn=document.createElement('button');
+    decBtn.className='copies-btn item-dec'; decBtn.textContent='−';
+    const countEl=document.createElement('div');
+    countEl.className='copies-count'; countEl.textContent=item.copies;
+    const incBtn=document.createElement('button');
+    incBtn.className='copies-btn item-inc'; incBtn.textContent='+';
+    const copiesLabel=document.createElement('span');
+    copiesLabel.style.fontSize='11px'; copiesLabel.style.color='var(--ink2)';
+    copiesLabel.textContent='copies';
+    copiesRow.appendChild(decBtn); copiesRow.appendChild(countEl);
+    copiesRow.appendChild(incBtn); copiesRow.appendChild(copiesLabel);
+    body.appendChild(copiesRow);
+
+    // brightness
+    const mkAdj=(label,cls,val,min,max)=>{
+      const wrap=document.createElement('div');
+      const lrow=document.createElement('div');
+      lrow.className='adj-label';
+      const lbl=document.createElement('span'); lbl.textContent=label;
+      const valSpan=document.createElement('span'); valSpan.textContent=val+'%';
+      lrow.appendChild(lbl); lrow.appendChild(valSpan);
+      const inp=document.createElement('input');
+      inp.type='range'; inp.min=min; inp.max=max; inp.value=val;
+      inp.className=cls;
+      inp.addEventListener('input',()=>{valSpan.textContent=inp.value+'%';});
+      wrap.appendChild(lrow); wrap.appendChild(inp);
+      return wrap;
+    };
+    body.appendChild(mkAdj('Brightness','item-brightness',item.brightness,50,200));
+    body.appendChild(mkAdj('Contrast','item-contrast',item.contrast,50,200));
+
+    // actions
+    const actRow=document.createElement('div');
+    actRow.className='item-actions-row';
+    const cropBtn=document.createElement('button');
+    cropBtn.className='icon-btn item-crop'; cropBtn.textContent='✂ Crop';
+    const resetAdjBtn=document.createElement('button');
+    resetAdjBtn.className='icon-btn item-reset-adj'; resetAdjBtn.textContent='↺ Reset adj.';
+    const removeBtn=document.createElement('button');
+    removeBtn.className='icon-btn danger item-remove'; removeBtn.textContent='✕ Remove';
+    actRow.appendChild(cropBtn); actRow.appendChild(resetAdjBtn); actRow.appendChild(removeBtn);
+    body.appendChild(actRow);
+
+    card.appendChild(body);
+    itemsList.appendChild(card);
+  });
+}
+
+// delegate events on item cards
+itemsList.addEventListener('click',e=>{
+  const card=e.target.closest('.item-card');
+  if(!card) return;
+  const item=items.find(i=>i.id===Number(card.dataset.id));
+  if(!item) return;
+
+  if(e.target.classList.contains('item-crop')){
+    openCropModal(item);
+  } else if(e.target.classList.contains('item-remove')){
+    items=items.filter(i=>i.id!==item.id);
+    renderItemsList(); render();
+  } else if(e.target.classList.contains('item-dec')){
+    item.copies=Math.max(1,item.copies-1);
+    renderItemsList(); render();
+  } else if(e.target.classList.contains('item-inc')){
+    item.copies=item.copies+1;
+    renderItemsList(); render();
+  } else if(e.target.classList.contains('item-reset-adj')){
+    item.brightness=100; item.contrast=100;
+    applyCropForItem(item);
+    renderItemsList(); render();
+  } else if(e.target.closest('.item-header')){
+    item.open=!item.open;
+    renderItemsList();
   }
+});
 
-  // ---------- Items list UI ----------
-  function renderItemsList(){
-    itemsList.innerHTML = '';
-    items.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      card.dataset.id = item.id;
-
-      const thumb = document.createElement('div');
-      thumb.className = 'item-thumb';
-      const thumbImg = document.createElement('img');
-      thumbImg.src = item.croppedDataUrl || '';
-      thumb.appendChild(thumbImg);
-      card.appendChild(thumb);
-
-      const body = document.createElement('div');
-      body.className = 'item-body';
-
-      const name = document.createElement('div');
-      name.className = 'item-name';
-      name.textContent = item.fileName;
-      body.appendChild(name);
-
-      const sizeRow = document.createElement('div');
-      sizeRow.className = 'item-row';
-      const sizeSel = document.createElement('select');
-      sizeSel.className = 'item-size';
-      PHOTO_SIZES.forEach(opt => {
-        const o = document.createElement('option');
-        o.value = opt.value;
-        o.textContent = opt.label;
-        if (opt.value === item.sizeKey) o.selected = true;
-        sizeSel.appendChild(o);
-      });
-      sizeRow.appendChild(sizeSel);
-      body.appendChild(sizeRow);
-
-      const customRow = document.createElement('div');
-      customRow.className = 'item-custom';
-      customRow.style.display = item.sizeKey === 'custom' ? 'flex' : 'none';
-      const wInput = document.createElement('input');
-      wInput.type = 'number'; wInput.step = '0.1'; wInput.className = 'item-customW';
-      wInput.value = item.customW; wInput.placeholder = 'W cm';
-      const hInput = document.createElement('input');
-      hInput.type = 'number'; hInput.step = '0.1'; hInput.className = 'item-customH';
-      hInput.value = item.customH; hInput.placeholder = 'H cm';
-      customRow.appendChild(wInput);
-      customRow.appendChild(hInput);
-      body.appendChild(customRow);
-
-      const copiesRow = document.createElement('div');
-      copiesRow.className = 'item-row';
-      const copiesLabel = document.createElement('label');
-      copiesLabel.textContent = 'Copies';
-      const copiesInputEl = document.createElement('input');
-      copiesInputEl.type = 'number'; copiesInputEl.min = '1'; copiesInputEl.className = 'item-copies';
-      copiesInputEl.value = item.copies;
-      copiesRow.appendChild(copiesLabel);
-      copiesRow.appendChild(copiesInputEl);
-      body.appendChild(copiesRow);
-
-      const actions = document.createElement('div');
-      actions.className = 'item-actions';
-      const cropBtn = document.createElement('button');
-      cropBtn.className = 'item-crop'; cropBtn.textContent = 'Crop';
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'item-remove remove'; removeBtn.textContent = 'Remove';
-      actions.appendChild(cropBtn);
-      actions.appendChild(removeBtn);
-      body.appendChild(actions);
-
-      card.appendChild(body);
-      itemsList.appendChild(card);
-    });
+itemsList.addEventListener('change',e=>{
+  const card=e.target.closest('.item-card');
+  if(!card) return;
+  const item=items.find(i=>i.id===Number(card.dataset.id));
+  if(!item) return;
+  if(e.target.classList.contains('item-size')){
+    item.sizeKey=e.target.value;
+    card.querySelector('.row2').style.display=item.sizeKey==='custom'?'flex':'none';
+    initCropForItem(item); applyCropForItem(item);
+    renderItemsList(); render();
   }
+});
 
-  itemsList.addEventListener('change', e => {
-    const card = e.target.closest('.item-card');
-    if (!card) return;
-    const item = items.find(i => i.id === Number(card.dataset.id));
-    if (!item) return;
-    if (e.target.classList.contains('item-size')){
-      item.sizeKey = e.target.value;
-      card.querySelector('.item-custom').style.display = item.sizeKey === 'custom' ? 'flex' : 'none';
-      initCropForItem(item);
-      applyCropForItem(item);
-      renderItemsList();
-      render();
-    }
-  });
-
-  itemsList.addEventListener('input', e => {
-    const card = e.target.closest('.item-card');
-    if (!card) return;
-    const item = items.find(i => i.id === Number(card.dataset.id));
-    if (!item) return;
-
-    if (e.target.classList.contains('item-copies')){
-      item.copies = Math.max(1, parseInt(e.target.value) || 1);
-      render();
-    } else if (e.target.classList.contains('item-customW') || e.target.classList.contains('item-customH')){
-      item.customW = parseFloat(card.querySelector('.item-customW').value) || item.customW;
-      item.customH = parseFloat(card.querySelector('.item-customH').value) || item.customH;
-      initCropForItem(item);
-      applyCropForItem(item);
-      const thumbImg = card.querySelector('.item-thumb img');
-      if (thumbImg) thumbImg.src = item.croppedDataUrl;
-      render();
-    }
-  });
-
-  itemsList.addEventListener('click', e => {
-    const card = e.target.closest('.item-card');
-    if (!card) return;
-    const item = items.find(i => i.id === Number(card.dataset.id));
-    if (!item) return;
-
-    if (e.target.classList.contains('item-crop')){
-      openCropModal(item);
-    } else if (e.target.classList.contains('item-remove')){
-      items = items.filter(i => i.id !== item.id);
-      renderItemsList();
-      render();
-    }
-  });
-
-  // ---------- Global controls ----------
-  pageSizeSel.addEventListener('change', () => {
-    pageCustomField.style.display = pageSizeSel.value === 'custom' ? 'block' : 'none';
+itemsList.addEventListener('input',e=>{
+  const card=e.target.closest('.item-card');
+  if(!card) return;
+  const item=items.find(i=>i.id===Number(card.dataset.id));
+  if(!item) return;
+  if(e.target.classList.contains('item-customW')||e.target.classList.contains('item-customH')){
+    item.customW=parseFloat(card.querySelector('.item-customW').value)||item.customW;
+    item.customH=parseFloat(card.querySelector('.item-customH').value)||item.customH;
+    initCropForItem(item); applyCropForItem(item);
+    card.querySelector('.item-thumb img').src=item.croppedDataUrl;
     render();
-  });
-  [pageOrient, gapInput, marginInput, autoRotate, cutLines, pageCustomW, pageCustomH]
-    .forEach(el => el.addEventListener('input', render));
-
-  // ---------- MaxRects packing ----------
-  // Maintains the set of maximal free rectangles on each page. Each new
-  // photo is placed in the free rectangle that leaves the least wasted
-  // area (Best Area Fit, tie-broken by Best Short Side Fit), then every
-  // overlapping free rectangle is split into the largest remaining pieces.
-  // This lets smaller photos backfill leftover space anywhere on the page,
-  // not just within the row of the item that created it.
-  const RECT_EPS = 0.01;
-
-  function rectsOverlap(r, x, y, w, h){
-    return x < r.x + r.w - RECT_EPS && x + w > r.x + RECT_EPS &&
-           y < r.y + r.h - RECT_EPS && y + h > r.y + RECT_EPS;
   }
-
-  function rectContained(a, b){
-    return a.x >= b.x - RECT_EPS && a.y >= b.y - RECT_EPS &&
-           a.x + a.w <= b.x + b.w + RECT_EPS && a.y + a.h <= b.y + b.h + RECT_EPS;
+  if(e.target.classList.contains('item-brightness')||e.target.classList.contains('item-contrast')){
+    item.brightness=parseInt(card.querySelector('.item-brightness').value)||100;
+    item.contrast=parseInt(card.querySelector('.item-contrast').value)||100;
+    applyCropForItem(item);
+    card.querySelector('.item-thumb img').src=item.croppedDataUrl;
+    render();
   }
+});
 
-  function pruneFreeRects(rects){
-    const filtered = rects.filter(r => r.w > RECT_EPS && r.h > RECT_EPS);
-    const out = [];
-    for (let i = 0; i < filtered.length; i++){
-      let contained = false;
-      for (let j = 0; j < filtered.length; j++){
-        if (i === j) continue;
-        if (rectContained(filtered[i], filtered[j])){ contained = true; break; }
-      }
-      if (!contained) out.push(filtered[i]);
-    }
-    return out;
-  }
-
-  function splitFreeRects(page, px, py, pw, ph){
-    const next = [];
-    for (const r of page.freeRects){
-      if (!rectsOverlap(r, px, py, pw, ph)){ next.push(r); continue; }
-      if (px > r.x) next.push({ x: r.x, y: r.y, w: px - r.x, h: r.h });
-      if (px + pw < r.x + r.w) next.push({ x: px + pw, y: r.y, w: (r.x + r.w) - (px + pw), h: r.h });
-      if (py > r.y) next.push({ x: r.x, y: r.y, w: r.w, h: py - r.y });
-      if (py + ph < r.y + r.h) next.push({ x: r.x, y: py + ph, w: r.w, h: (r.y + r.h) - (py + ph) });
-    }
-    page.freeRects = pruneFreeRects(next);
-  }
-
-  function tryPlaceOnPage(page, u, allowRotate, gap){
-    const orientations = (allowRotate && Math.abs(u.w - u.h) > RECT_EPS)
-      ? [{ w: u.w, h: u.h, rot: false }, { w: u.h, h: u.w, rot: true }]
-      : [{ w: u.w, h: u.h, rot: false }];
-
-    let best = null;
-    for (const o of orientations){
-      const fw = o.w + gap, fh = o.h + gap; // footprint includes spacing to the next item
-      for (const r of page.freeRects){
-        if (fw <= r.w + RECT_EPS && fh <= r.h + RECT_EPS){
-          const areaFit = r.w*r.h - fw*fh;
-          const shortSideFit = Math.min(r.w - fw, r.h - fh);
-          if (!best || areaFit < best.areaFit - RECT_EPS ||
-              (Math.abs(areaFit - best.areaFit) < RECT_EPS && shortSideFit < best.shortSideFit)){
-            best = { x: r.x, y: r.y, fw, fh, w: o.w, h: o.h, rot: o.rot, areaFit, shortSideFit };
-          }
-        }
-      }
-    }
-    if (!best) return false;
-
-    page.placements.push({ x: best.x, y: best.y, w: best.w, h: best.h, rot: best.rot, u });
-    splitFreeRects(page, best.x, best.y, best.fw, best.fh);
-    return true;
-  }
-
-  function packPages(units, availW, availH, gap, allowRotate){
-    const sorted = units.slice().sort((a, b) => (b.w*b.h) - (a.w*a.h));
-    const pages = [];
-    const skipped = [];
-
-    for (const u of sorted){
-      let placed = false;
-      for (const page of pages){
-        if (tryPlaceOnPage(page, u, allowRotate, gap)){ placed = true; break; }
-      }
-      if (!placed){
-        const page = { freeRects: [{ x: 0, y: 0, w: availW, h: availH }], placements: [] };
-        if (tryPlaceOnPage(page, u, allowRotate, gap)){
-          pages.push(page);
-        } else {
-          skipped.push(u);
-        }
-      }
-    }
-    return { pages, skipped };
-  }
-
-  // ---------- Render ----------
-  function render(){
-    const page = getPageSizeMm();
-    const margin = parseFloat(marginInput.value) || 0;
-    const gap = parseFloat(gapInput.value) || 0;
-    const allowRotate = autoRotate.checked;
-
-    pageStyleTag.textContent = `@page { size: ${page.w}mm ${page.h}mm; margin: 0; }`;
-    pagesEl.innerHTML = '';
-
-    if (items.length === 0){
-      pagesEl.innerHTML = '<div class="empty-state">Add a photo from the left panel to start.</div>';
-      readout.innerHTML = 'Add at least one photo to generate a layout.';
-      printBtn.disabled = true;
-      return;
-    }
-
-    const availW = page.w - 2*margin;
-    const availH = page.h - 2*margin;
-
-    const units = [];
-    items.forEach(item => {
-      const sz = itemPhotoSizeMm(item);
-      for (let c = 0; c < item.copies; c++){
-        units.push({ w: sz.w, h: sz.h, img: item.croppedDataUrl });
-      }
-    });
-
-    const { pages, skipped } = packPages(units, availW, availH, gap, allowRotate);
-
-    if (pages.length === 0){
-      readout.innerHTML = '<span class="warn">No photos fit on the page. Reduce sizes, margin or gap.</span>';
-      printBtn.disabled = true;
-      return;
-    }
-    printBtn.disabled = false;
-
-    pages.forEach((pg, pIdx) => {
-      const pageDiv = document.createElement('div');
-      pageDiv.className = 'page';
-      pageDiv.style.width = page.w + 'mm';
-      pageDiv.style.height = page.h + 'mm';
-
-      const label = document.createElement('div');
-      label.className = 'pagelabel';
-      label.textContent = `Page ${pIdx+1} / ${pages.length}  —  ${page.w.toFixed(1)} × ${page.h.toFixed(1)} mm`;
-      pageDiv.appendChild(label);
-
-      pg.placements.forEach(p => {
-        const cell = document.createElement('div');
-        cell.className = 'cell' + (cutLines.checked ? ' cutlines' : '');
-        cell.style.left = (margin + p.x) + 'mm';
-        cell.style.top = (margin + p.y) + 'mm';
-        cell.style.width = p.w + 'mm';
-        cell.style.height = p.h + 'mm';
-
-        if (p.u.img){
-          const img = document.createElement('img');
-          img.src = p.u.img;
-          if (p.rot){
-            img.className = 'rot';
-            img.style.width = p.h + 'mm';
-            img.style.height = p.w + 'mm';
-          }
-          cell.appendChild(img);
-        }
-        pageDiv.appendChild(cell);
-      });
-
-      pagesEl.appendChild(pageDiv);
-    });
-
-    const totalCopies = units.length;
-    const sizesSummary = items.map(item => {
-      const sz = itemPhotoSizeMm(item);
-      return `${sz.w.toFixed(1)} × ${sz.h.toFixed(1)} mm  ×${item.copies}`;
-    }).join('<br/>');
-
-    let warn = '';
-    if (skipped.length > 0){
-      warn = `<br/><span class="warn">${skipped.length} photo(s) larger than the page were skipped.</span>`;
-    }
-
-    readout.innerHTML = `
-      <span class="k">Items:</span><br/>${sizesSummary}<br/>
-      <span class="k">Total photos:</span> ${totalCopies}<br/>
-      <span class="k">Pages needed:</span> ${pages.length}${warn}
-    `;
-  }
-
-  printBtn.addEventListener('click', () => window.print());
-
-  // init
+// ═══════════════════════════════ GLOBAL CONTROLS ══════════════════════════════
+pageSizeSel.addEventListener('change',()=>{
+  pageCustomField.style.display=pageSizeSel.value==='custom'?'block':'none';
   render();
+});
+[pageOrient,gapInput,marginInput,autoRotate,cutLines,algoSel,pageCustomW,pageCustomH]
+  .forEach(el=>el.addEventListener('input',render));
+[pageOrient,algoSel].forEach(el=>el.addEventListener('change',render));
+
+// ═══════════════════════════════ PACKING ALGORITHMS ══════════════════════════════
+const EPS=0.01;
+
+// ── MaxRects helpers ──
+function rectsOverlap(r,x,y,w,h){
+  return x<r.x+r.w-EPS&&x+w>r.x+EPS&&y<r.y+r.h-EPS&&y+h>r.y+EPS;
+}
+function rectContained(a,b){
+  return a.x>=b.x-EPS&&a.y>=b.y-EPS&&a.x+a.w<=b.x+b.w+EPS&&a.y+a.h<=b.y+b.h+EPS;
+}
+function pruneFreeRects(rects){
+  const f=rects.filter(r=>r.w>EPS&&r.h>EPS);
+  return f.filter((_,i)=>!f.some((b,j)=>j!==i&&rectContained(f[i],b)));
+}
+function splitFreeRects(freeRects,px,py,pw,ph){
+  const next=[];
+  for(const r of freeRects){
+    if(!rectsOverlap(r,px,py,pw,ph)){next.push(r);continue;}
+    if(px>r.x) next.push({x:r.x,y:r.y,w:px-r.x,h:r.h});
+    if(px+pw<r.x+r.w) next.push({x:px+pw,y:r.y,w:(r.x+r.w)-(px+pw),h:r.h});
+    if(py>r.y) next.push({x:r.x,y:r.y,w:r.w,h:py-r.y});
+    if(py+ph<r.y+r.h) next.push({x:r.x,y:py+ph,w:r.w,h:(r.y+r.h)-(py+ph)});
+  }
+  return pruneFreeRects(next);
+}
+
+function orientations(u,allowRotate){
+  if(!allowRotate||Math.abs(u.w-u.h)<EPS) return [{w:u.w,h:u.h,rot:false}];
+  return [{w:u.w,h:u.h,rot:false},{w:u.h,h:u.w,rot:true}];
+}
+
+// ── MaxRects BAF (Best Area Fit) ──
+function maxrectsBestFit(u,freeRects,allowRotate,gap,mode){
+  const orients=orientations(u,allowRotate);
+  let best=null;
+  for(const o of orients){
+    const fw=o.w+gap, fh=o.h+gap;
+    for(const r of freeRects){
+      if(fw>r.w+EPS||fh>r.h+EPS) continue;
+      const areaFit=r.w*r.h-fw*fh;
+      const shortSide=Math.min(r.w-fw,r.h-fh);
+      const longSide=Math.max(r.w-fw,r.h-fh);
+      let score;
+      if(mode==='baf') score=areaFit;
+      else if(mode==='bssf') score=shortSide;
+      else score=longSide; // blsf
+      if(!best||score<best.score-EPS){
+        best={x:r.x,y:r.y,w:o.w,h:o.h,rot:o.rot,fw,fh,score,u};
+      }
+    }
+  }
+  return best;
+}
+
+// ── Guillotine (Short Axis Split) ──
+function guillotinePack(u,freeRects,allowRotate,gap){
+  const orients=orientations(u,allowRotate);
+  let best=null;
+  let bestIdx=-1;
+  for(let i=0;i<freeRects.length;i++){
+    const r=freeRects[i];
+    for(const o of orients){
+      const fw=o.w+gap, fh=o.h+gap;
+      if(fw>r.w+EPS||fh>r.h+EPS) continue;
+      const leftoverH=r.h-fh, leftoverW=r.w-fw;
+      const waste=Math.min(leftoverH*r.w,leftoverW*r.h);
+      if(!best||waste<best.waste){
+        best={x:r.x,y:r.y,w:o.w,h:o.h,rot:o.rot,fw,fh,waste,leftoverH,leftoverW,u};
+        bestIdx=i;
+      }
+    }
+  }
+  if(!best) return null;
+  // split along shorter axis
+  const r=freeRects[bestIdx];
+  const newRects=freeRects.filter((_,i)=>i!==bestIdx);
+  const fw=best.fw, fh=best.fh;
+  if(best.leftoverH<best.leftoverW){
+    if(r.w-fw>EPS) newRects.push({x:r.x+fw,y:r.y,w:r.w-fw,h:fh});
+    if(r.h-fh>EPS) newRects.push({x:r.x,y:r.y+fh,w:r.w,h:r.h-fh});
+  } else {
+    if(r.h-fh>EPS) newRects.push({x:r.x,y:r.y+fh,w:fw,h:r.h-fh});
+    if(r.w-fw>EPS) newRects.push({x:r.x+fw,y:r.y,w:r.w-fw,h:r.h});
+  }
+  return{placement:best, freeRects:newRects};
+}
+
+// ── Shelf (NFDH) ──
+function shelfPack(units,availW,availH,gap,allowRotate){
+  const placements=[];
+  const shelves=[];
+  let curShelfY=0,curShelfH=0,curShelfUsedW=0;
+
+  for(const u of units){
+    const orients2=orientations(u,allowRotate);
+    let placed=false;
+    // try existing shelves
+    for(const shelf of shelves){
+      for(const o of orients2){
+        const x=shelf.usedW>0?shelf.usedW+gap:0;
+        if(o.h<=shelf.h+EPS&&x+o.w<=availW+EPS){
+          placements.push({x,y:shelf.y,w:o.w,h:o.h,rot:o.rot,u});
+          shelf.usedW=x+o.w;
+          placed=true;break;
+        }
+      }
+      if(placed) break;
+    }
+    if(placed) continue;
+    // new shelf
+    const y=shelves.length>0?shelves[shelves.length-1].y+shelves[shelves.length-1].h+gap:0;
+    for(const o of orients2){
+      if(o.w<=availW+EPS&&y+o.h<=availH+EPS){
+        placements.push({x:0,y,w:o.w,h:o.h,rot:o.rot,u});
+        shelves.push({y,h:o.h,usedW:o.w});
+        placed=true;break;
+      }
+    }
+    if(!placed) return{placements,overflow:true};
+  }
+  return{placements,overflow:false};
+}
+
+// ── Row Fill (Top-to-Bottom Exhaustive) ──
+// Deterministic, predictable layout: fills strictly left-to-right within a
+// row, then moves to the next row down, like reading order. Unlike Shelf
+// NFDH it looks ahead across ALL remaining units (not just in arrival
+// order) so a row keeps pulling in same-fitting items - of any orientation -
+// until truly nothing else fits, before moving down. This avoids leaving a
+// half-empty row when a smaller/rotated item further down the list would
+// still have fit.
+function rowFillPack(units,availW,availH,gap,allowRotate){
+  const pool=units.map((u,i)=>({u,i,used:false}));
+  const placements=[];
+  let y=0;
+
+  while(true){
+    // does anything at all still fit vertically from here?
+    const remaining=pool.filter(p=>!p.used);
+    if(remaining.length===0) break;
+
+    // pick the row height: the tallest remaining item's shorter-fitting
+    // orientation, trying the item that would be placed first (largest area)
+    let rowH=null;
+    for(const p of remaining){
+      for(const o of orientations(p.u,allowRotate)){
+        if(o.w<=availW+EPS && y+o.h<=availH+EPS){
+          if(rowH===null || o.h>rowH) rowH=o.h;
+          break;
+        }
+      }
+    }
+    if(rowH===null) break; // nothing fits in remaining height at all
+
+    // fill the row left-to-right: repeatedly pick, among items that still
+    // fit in the remaining width AND within rowH, the one that wastes the
+    // least leftover width (a 1D best-fit), so the row packs tightly
+    let x=0;
+    let progress=true;
+    while(progress){
+      progress=false;
+      let bestPick=null;
+      for(const p of pool){
+        if(p.used) continue;
+        for(const o of orientations(p.u,allowRotate)){
+          const fw=(x===0?0:gap)+o.w;
+          if(o.h<=rowH+EPS && x+fw<=availW+EPS){
+            const leftover=availW-(x+fw);
+            if(!bestPick||leftover<bestPick.leftover-EPS){
+              bestPick={p,o,fw,leftover};
+            }
+          }
+        }
+      }
+      if(bestPick){
+        const placeX=x===0?0:x+gap;
+        placements.push({x:placeX,y,w:bestPick.o.w,h:bestPick.o.h,rot:bestPick.o.rot,u:bestPick.p.u});
+        x=placeX+bestPick.o.w;
+        bestPick.p.used=true;
+        progress=true;
+      }
+    }
+
+    y=y+rowH+gap;
+  }
+
+  const overflow=pool.some(p=>!p.used);
+  return{placements,overflow};
+}
+
+// ── Main packer ──
+function packPages(allUnits,availW,availH,gap,allowRotate,algoName){
+  const sorted=allUnits.slice().sort((a,b)=>(b.w*b.h)-(a.w*a.h));
+  const pages=[], skipped=[];
+
+  if(algoName==='rowfill'){
+    // Row Fill needs the full remaining unit list per page (it looks ahead
+    // across siblings), so it's driven differently from the others: keep
+    // packing pages, each time giving the algorithm every not-yet-placed
+    // unit and letting it fill exactly one page's worth.
+    let remaining=sorted.slice();
+    while(remaining.length>0){
+      const res=rowFillPack(remaining,availW,availH,gap,allowRotate);
+      if(res.placements.length===0){
+        // nothing at all fits on a fresh page - skip the smallest-fitting blocker
+        skipped.push(...remaining);
+        break;
+      }
+      pages.push({placements:res.placements});
+      const placedUnits=new Set(res.placements.map(p=>p.u));
+      remaining=remaining.filter(u=>!placedUnits.has(u));
+    }
+    return{pages,skipped};
+  }
+
+  for(const u of sorted){
+    let placed=false;
+
+    if(algoName==='shelf'){
+      // try each existing page's shelf state
+      for(const pg of pages){
+        const res=shelfPack([u],availW,availH,gap,allowRotate);
+        // naive: try appending to this page's shelves by simulating
+        // Re-pack all of this page's units + new one; if it doesn't overflow, accept
+        const all=[...pg.units,u];
+        const res2=shelfPack(all,availW,availH,gap,allowRotate);
+        if(!res2.overflow){
+          pg.units=all; pg.placements=res2.placements; placed=true; break;
+        }
+      }
+      if(!placed){
+        const res=shelfPack([u],availW,availH,gap,allowRotate);
+        if(!res.overflow) pages.push({units:[u],placements:res.placements});
+        else skipped.push(u);
+      }
+    } else {
+      // MaxRects or Guillotine
+      for(const pg of pages){
+        let result=null;
+        if(algoName==='guillotine'){
+          result=guillotinePack(u,pg.freeRects,allowRotate,gap);
+          if(result){
+            pg.placements.push(result.placement);
+            pg.freeRects=result.freeRects;
+            placed=true; break;
+          }
+        } else {
+          const mode=algoName.split('-')[1];
+          const fit=maxrectsBestFit(u,pg.freeRects,allowRotate,gap,mode);
+          if(fit){
+            pg.placements.push(fit);
+            pg.freeRects=splitFreeRects(pg.freeRects,fit.x,fit.y,fit.fw,fit.fh);
+            placed=true; break;
+          }
+        }
+      }
+      if(!placed){
+        const newPg={freeRects:[{x:0,y:0,w:availW,h:availH}],placements:[]};
+        let ok=false;
+        if(algoName==='guillotine'){
+          const res=guillotinePack(u,newPg.freeRects,allowRotate,gap);
+          if(res){newPg.placements.push(res.placement);newPg.freeRects=res.freeRects;ok=true;}
+        } else {
+          const mode=algoName.split('-')[1];
+          const fit=maxrectsBestFit(u,newPg.freeRects,allowRotate,gap,mode);
+          if(fit){
+            newPg.placements.push(fit);
+            newPg.freeRects=splitFreeRects(newPg.freeRects,fit.x,fit.y,fit.fw,fit.fh);
+            ok=true;
+          }
+        }
+        if(ok) pages.push(newPg);
+        else skipped.push(u);
+      }
+    }
+  }
+  return{pages,skipped};
+}
+
+// ═══════════════════════════════ RENDER ══════════════════════════════
+function render(){
+  const [pageW,pageH]=getPageSizeMm();
+  const margin=parseFloat(marginInput.value)||0;
+  const gap=parseFloat(gapInput.value)||0;
+  const allowRotate=autoRotate.checked;
+  const algo=algoSel.value;
+
+  pageStyleTag.textContent=`@page{size:${pageW}mm ${pageH}mm;margin:0;}`;
+  pagesEl.innerHTML='';
+
+  if(items.length===0){
+    const es=document.createElement('div');
+    es.className='empty-state';
+    es.innerHTML='<div class="es-icon">🖼</div><p>Add photos from the panel on the left to start building your print layout.</p>';
+    pagesEl.appendChild(es);
+    readout.innerHTML='Add at least one photo to generate a layout.';
+    printBtn.disabled=true;
+    drawRulers();
+    return;
+  }
+
+  const availW=pageW-2*margin, availH=pageH-2*margin;
+  const units=[];
+  items.forEach(item=>{
+    const sz=itemPhotoSizeMm(item);
+    for(let c=0;c<item.copies;c++){
+      units.push({w:sz.w,h:sz.h,img:item.croppedDataUrl});
+    }
+  });
+
+  const{pages,skipped}=packPages(units,availW,availH,gap,allowRotate,algo);
+
+  if(pages.length===0){
+    readout.innerHTML='<span class="warn">No photos fit on the page. Reduce sizes, margin or gap.</span>';
+    printBtn.disabled=true;
+    return;
+  }
+  printBtn.disabled=false;
+
+  const MM_PER_PX=1/3.7795;
+
+  pages.forEach((pg,pIdx)=>{
+    const pageDiv=document.createElement('div');
+    pageDiv.className='page';
+    pageDiv.style.width=pageW+'mm';
+    pageDiv.style.height=pageH+'mm';
+
+    const lbl=document.createElement('div');
+    lbl.className='pagelabel';
+    lbl.textContent=`Page ${pIdx+1} / ${pages.length}  ·  ${pageW.toFixed(0)} × ${pageH.toFixed(0)} mm`;
+    pageDiv.appendChild(lbl);
+
+    pg.placements.forEach(p=>{
+      const cell=document.createElement('div');
+      cell.className='cell'+(cutLines.checked?' cutlines':'');
+      cell.style.left=(margin+p.x)+'mm';
+      cell.style.top=(margin+p.y)+'mm';
+      cell.style.width=p.w+'mm';
+      cell.style.height=p.h+'mm';
+      if(p.u&&p.u.img){
+        const img=document.createElement('img');
+        img.src=p.u.img;
+        if(p.rot){
+          img.className='rot';
+          img.style.width=p.h+'mm';
+          img.style.height=p.w+'mm';
+        }
+        cell.appendChild(img);
+      }
+      pageDiv.appendChild(cell);
+    });
+    pagesEl.appendChild(pageDiv);
+  });
+
+  pagesEl.style.transform=`scale(${scale})`;
+  pagesEl.style.transformOrigin='top left';
+
+  const totalCopies=units.length;
+  const algoLabel={'maxrects-baf':'MaxRects BAF','maxrects-bssf':'MaxRects BSSF','maxrects-blsf':'MaxRects BLSF','guillotine':'Guillotine','shelf':'Shelf NFDH','rowfill':'Row Fill'}[algo]||algo;
+  const summary=items.map(it=>{
+    const sz=itemPhotoSizeMm(it);
+    return `<span class="hi">${it.fileName.replace(/\..+$/,'')}</span>  ${(sz.w/10).toFixed(1)}×${(sz.h/10).toFixed(1)} cm × ${it.copies}`;
+  }).join('<br/>');
+
+  let warn='';
+  if(skipped.length>0) warn=`<br/><span class="warn">⚠ ${skipped.length} photo(s) too large for the page were skipped.</span>`;
+
+  readout.innerHTML=`${summary}<br/><span class="hi">${totalCopies}</span> total · <span class="hi">${pages.length}</span> page(s) · ${algoLabel}${warn}`;
+
+  drawRulers();
+}
+
+// ═══════════════════════════════ PRINT ══════════════════════════════
+printBtn.addEventListener('click',()=>window.print());
+
+// ═══════════════════════════════ INIT ══════════════════════════════
+render();
+setTimeout(drawRulers,100);
 </script>
 </body>
 </html>
